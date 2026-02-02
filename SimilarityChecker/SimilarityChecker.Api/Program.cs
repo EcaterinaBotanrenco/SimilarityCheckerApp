@@ -1,13 +1,30 @@
+﻿using SimilarityChecker.Api.Services.Plagiarism;
+using SimilarityChecker.Api.Services.TextExtraction;
+using SimilarityChecker.UI.Services;
+using SimilarityChecker.UI.Services.TextExtraction;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ===== Controllers (MVC) =====
+builder.Services.AddControllers();
+
+// ===== Swagger =====
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ===== DI: Text extraction =====
+builder.Services.AddSingleton<TextExtractionService>();
+
+builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
+builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
+builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();
+
+// ===== DI: Plagiarism =====
+builder.Services.AddSingleton<IPlagiarismService, PlagiarismService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ===== HTTP pipeline =====
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,29 +33,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Dacă vei folosi auth în API mai târziu, aici vor veni:
+// app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+// IMPORTANT: map controllers
+app.MapControllers();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

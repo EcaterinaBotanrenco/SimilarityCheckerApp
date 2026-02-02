@@ -1,16 +1,27 @@
 {
   "version": 2,
-  "dgSpecHash": "2gO0l77wCwM=",
+  "dgSpecHash": "RRvMclvNWe8=",
   "success": true,
   "projectFilePath": "D:\\UTM.FCIM.TI\\Teza de licență\\SimilarityChecker\\SimilarityChecker.Api\\SimilarityChecker.Api.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\cbotn\\.nuget\\packages\\documentformat.openxml\\3.4.1\\documentformat.openxml.3.4.1.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\documentformat.openxml.framework\\3.4.1\\documentformat.openxml.framework.3.4.1.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\elasticsearch.net\\7.17.5\\elasticsearch.net.7.17.5.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.21\\microsoft.aspnetcore.openapi.8.0.21.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\microsoft.csharp\\4.6.0\\microsoft.csharp.4.6.0.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\microsoft.openapi\\1.6.14\\microsoft.openapi.1.6.14.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\nest\\7.17.5\\nest.7.17.5.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\pdfpig\\0.1.13\\pdfpig.0.1.13.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\questpdf\\2025.12.3\\questpdf.2025.12.3.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\swashbuckle.aspnetcore\\6.6.2\\swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.6.2\\swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.6.2\\swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
-    "C:\\Users\\cbotn\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.6.2\\swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512"
+    "C:\\Users\\cbotn\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.6.2\\swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\system.diagnostics.diagnosticsource\\5.0.0\\system.diagnostics.diagnosticsource.5.0.0.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\system.io.packaging\\8.0.1\\system.io.packaging.8.0.1.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\ude.netstandard\\1.2.0\\ude.netstandard.1.2.0.nupkg.sha512"
   ],
   "logs": []
 }

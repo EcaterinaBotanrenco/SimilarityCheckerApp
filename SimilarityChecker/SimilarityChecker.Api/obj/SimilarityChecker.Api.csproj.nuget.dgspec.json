@@ -55,13 +55,33 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "DocumentFormat.OpenXml": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.21, )"
             },
+            "NEST": {
+              "target": "Package",
+              "version": "[7.17.5, )"
+            },
+            "PdfPig": {
+              "target": "Package",
+              "version": "[0.1.13, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2025.12.3, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "Ude.NetStandard": {
+              "target": "Package",
+              "version": "[1.2.0, )"
             }
           },
           "imports": [

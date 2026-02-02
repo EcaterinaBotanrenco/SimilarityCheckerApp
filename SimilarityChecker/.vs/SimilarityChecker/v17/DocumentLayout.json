@@ -3,16 +3,44 @@
   "WorkspaceRootPath": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\similaritychecker.ui.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\similaritychecker.ui.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\pages\\plagiarismcheck.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\pages\\plagiarismcheck.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\shared\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\shared\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\pages\\plagiarismcheck.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\pages\\plagiarismcheck.razor.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FC7F09CB-5492-4E3F-80D0-979C1305E245}|SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.shared\\similaritychecker.shared.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{FC7F09CB-5492-4E3F-80D0-979C1305E245}|SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj|solutionrelative:similaritychecker.shared\\similaritychecker.shared.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\shared\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\shared\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\services\\plagiarismapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\services\\plagiarismapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\services\\iplagiarismapliclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\services\\iplagiarismapliclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FC7F09CB-5492-4E3F-80D0-979C1305E245}|SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.shared\\plagiarismdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FC7F09CB-5492-4E3F-80D0-979C1305E245}|SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj|solutionrelative:similaritychecker.shared\\plagiarismdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECF331F0-4051-4F84-844A-52D02A721148}|SimilarityChecker.Api\\SimilarityChecker.Api.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.api\\services\\textextraction\\docxtextextractor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECF331F0-4051-4F84-844A-52D02A721148}|SimilarityChecker.Api\\SimilarityChecker.Api.csproj|solutionrelative:similaritychecker.api\\services\\textextraction\\docxtextextractor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECF331F0-4051-4F84-844A-52D02A721148}|SimilarityChecker.Api\\SimilarityChecker.Api.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECF331F0-4051-4F84-844A-52D02A721148}|SimilarityChecker.Api\\SimilarityChecker.Api.csproj|solutionrelative:similaritychecker.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|d:\\utm.fcim.ti\\teza de licen\u021B\u0103\\similaritychecker\\similaritychecker.ui\\authentication\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D23A51C-55FA-46B5-BBA7-763E932782BC}|SimilarityChecker.UI\\SimilarityChecker.UI.csproj|solutionrelative:similaritychecker.ui\\authentication\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +50,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,40 +58,126 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SimilarityChecker.Shared.csproj",
-              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj",
-              "RelativeDocumentMoniker": "SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj",
-              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj",
-              "RelativeToolTip": "SimilarityChecker.Shared\\SimilarityChecker.Shared.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-01-22T16:08:01.432Z",
+              "DocumentIndex": 0,
+              "Title": "PlagiarismCheck.razor",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor",
+              "RelativeToolTip": "SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor",
+              "ViewState": "AgIAAMgAAAAAAAAAAAAiwDQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-02T21:07:18.721Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MainLayout.razor",
-              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Shared\\MainLayout.razor",
-              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Shared\\MainLayout.razor",
-              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Shared\\MainLayout.razor",
-              "RelativeToolTip": "SimilarityChecker.UI\\Shared\\MainLayout.razor",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-01-22T12:28:16.588Z"
+              "Title": "PlagiarismCheck.razor.css",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor.css",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor.css",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor.css",
+              "RelativeToolTip": "SimilarityChecker.UI\\Pages\\PlagiarismCheck.razor.css",
+              "ViewState": "AgIAABMBAAAAAAAAAAAwwIgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-02-02T20:45:15.448Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SimilarityChecker.UI.csproj",
-              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
-              "RelativeDocumentMoniker": "SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
-              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
-              "RelativeToolTip": "SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-01-22T11:23:48.246Z",
+              "DocumentIndex": 3,
+              "Title": "PlagiarismApiClient.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Services\\PlagiarismApiClient.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Services\\PlagiarismApiClient.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Services\\PlagiarismApiClient.cs",
+              "RelativeToolTip": "SimilarityChecker.UI\\Services\\PlagiarismApiClient.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAowBUAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T18:26:41.069Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PlagiarismDtos.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Shared\\PlagiarismDtos.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.Shared\\PlagiarismDtos.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Shared\\PlagiarismDtos.cs",
+              "RelativeToolTip": "SimilarityChecker.Shared\\PlagiarismDtos.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T18:44:07.859Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Program.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Program.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Program.cs",
+              "RelativeToolTip": "SimilarityChecker.UI\\Program.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAMAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T13:32:52.368Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IPlagiarismApliClient.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Services\\IPlagiarismApliClient.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Services\\IPlagiarismApliClient.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Services\\IPlagiarismApliClient.cs",
+              "RelativeToolTip": "SimilarityChecker.UI\\Services\\IPlagiarismApliClient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T18:28:39.988Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DocxTextExtractor.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Api\\Services\\TextExtraction\\DocxTextExtractor.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.Api\\Services\\TextExtraction\\DocxTextExtractor.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Api\\Services\\TextExtraction\\DocxTextExtractor.cs",
+              "RelativeToolTip": "SimilarityChecker.Api\\Services\\TextExtraction\\DocxTextExtractor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T18:08:45.528Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Api\\Program.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.Api\\Program.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.Api\\Program.cs",
+              "RelativeToolTip": "SimilarityChecker.Api\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T17:58:31.743Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Authentication\\AuthService.cs",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Authentication\\AuthService.cs",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Authentication\\AuthService.cs",
+              "RelativeToolTip": "SimilarityChecker.UI\\Authentication\\AuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:00:49.669Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "NavMenu.razor",
+              "DocumentMoniker": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Shared\\NavMenu.razor",
+              "RelativeDocumentMoniker": "SimilarityChecker.UI\\Shared\\NavMenu.razor",
+              "ToolTip": "D:\\UTM.FCIM.TI\\Teza de licen\u021B\u0103\\SimilarityChecker\\SimilarityChecker.UI\\Shared\\NavMenu.razor",
+              "RelativeToolTip": "SimilarityChecker.UI\\Shared\\NavMenu.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-02T14:01:49.692Z",
               "EditorCaption": ""
             }
           ]

@@ -1,11 +1,15 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SimilarityChecker.UI.Authentication;
 using SimilarityChecker.UI.Data;
+using SimilarityChecker.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +32,31 @@ namespace SimilarityChecker.UI
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddControllers();
             services.AddSingleton<WeatherForecastService>();
+
+            // Cookie auth
+            services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/login";
+                    options.LogoutPath = "/logout";
+                    options.AccessDeniedPath = "/access-denied";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = true;
+                });
+
+            services.AddAuthorization();
+            services.AddHttpContextAccessor();
+
+            // Custom auth provider + services
+            services.AddScoped<CustomAuthStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddSingleton<IUserStore, InMemoryUserStore>();
+            services.AddSingleton<IPlagiarismService, DemoPlagiarismService>();
+            ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,11 +78,16 @@ namespace SimilarityChecker.UI
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
         }
     }
 }

@@ -24,25 +24,29 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/FetchData.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Shared/SurveyPrompt.razor]
-build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFN1cnZleVByb21wdC5yYXpvcg==
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/SignUp.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2lnblVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Shared/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFJlZGlyZWN0VG9Mb2dpbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/PlagiarismCheck.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxhZ2lhcmlzbUNoZWNrLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-hr3rzfa5zt
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Shared/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
@@ -51,10 +55,6 @@ build_metadata.AdditionalFiles.CssScope = b-xvcuw0jp3s
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Shared/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-9dkgly7ffc
-
-[D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/Error.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityChecker/SimilarityChecker.UI/Pages/_Host.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
