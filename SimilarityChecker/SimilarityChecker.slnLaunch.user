@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "SimilarityChecker.Api\\SimilarityChecker.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
