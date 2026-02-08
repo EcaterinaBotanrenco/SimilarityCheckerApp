@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SimilarityChecker.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4d4e08e5e9ec9fd60e30305d6537b1425e3033e7")]
 [assembly: System.Reflection.AssemblyProductAttribute("SimilarityChecker.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SimilarityChecker.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

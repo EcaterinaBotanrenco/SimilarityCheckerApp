@@ -5,6 +5,62 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/plagiarism/check": {
+      "post": {
+        "tags": [
+          "Plagiarism"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "MainFile": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "ReferenceFile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "MainFile": {
+                  "style": "form"
+                },
+                "ReferenceFile": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/plagiarism/report/{runId}": {
       "get": {
         "tags": [
@@ -29,5 +85,60 @@
       }
     }
   },
-  "components": { }
+  "components": {
+    "schemas": {
+      "PlagiarismCheckResponse": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "result": {
+            "$ref": "#/components/schemas/PlagiarismResultDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlagiarismMatchDto": {
+        "type": "object",
+        "properties": {
+          "sourceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "similarity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PlagiarismResultDto": {
+        "type": "object",
+        "properties": {
+          "overallSimilarity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "threshold": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlagiarismMatchDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
 }

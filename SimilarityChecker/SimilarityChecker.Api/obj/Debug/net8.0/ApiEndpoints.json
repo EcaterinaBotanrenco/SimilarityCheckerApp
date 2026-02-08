@@ -1,5 +1,36 @@
 [
   {
+    "ContainingType": "SimilarityChecker.Api.Controllers.PlagiarismController",
+    "Method": "Check",
+    "RelativePath": "api/plagiarism/check",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "MainFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReferenceFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.UI.Services.PlagiarismCheckResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "SimilarityChecker.UI.Controllers.PlagiarismReportController",
     "Method": "DownloadReport",
     "RelativePath": "api/plagiarism/report/{runId}",

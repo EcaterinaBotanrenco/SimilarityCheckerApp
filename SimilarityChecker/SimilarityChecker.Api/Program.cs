@@ -1,4 +1,6 @@
-﻿using SimilarityChecker.Api.Services.Plagiarism;
+﻿using Microsoft.EntityFrameworkCore;
+using SimilarityChecker.Api.Data;
+using SimilarityChecker.Api.Services.Plagiarism;
 using SimilarityChecker.Api.Services.TextExtraction;
 using SimilarityChecker.UI.Services;
 using SimilarityChecker.UI.Services.TextExtraction;
@@ -12,9 +14,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<SimilarityCheckerDbContext>(options =>
+{
+    var cs = builder.Configuration.GetConnectionString("SimilarityCheckerDb");
+    options.UseSqlServer(cs);
+});
+
 // ===== DI: Text extraction =====
 builder.Services.AddSingleton<TextExtractionService>();
-
 builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();

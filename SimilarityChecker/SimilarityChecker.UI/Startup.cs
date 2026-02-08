@@ -55,7 +55,6 @@ namespace SimilarityChecker.UI
             services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
             services.AddScoped<IAuthService, AuthService>();
             services.AddSingleton<IUserStore, InMemoryUserStore>();
-            services.AddSingleton<IPlagiarismService, DemoPlagiarismService>();
             ;
         }
 

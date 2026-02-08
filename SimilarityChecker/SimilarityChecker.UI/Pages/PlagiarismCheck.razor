@@ -1,8 +1,9 @@
 ﻿@page "/plagiarism-check"
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO
+@using SimilarityChecker.UI.Services
 @inject NavigationManager Nav
-@* @inject IPlagiarismApiClient Api *@
+@inject IPlagiarismApiClient Api 
 
 <PageTitle>Plagiarism Checker</PageTitle>
 
@@ -184,7 +185,7 @@
     private bool _pdfBusy;
     private string? _error;
 
-    // Înlocuiește cu DTO-ul tău real din Shared
+    // Use shared DTOs from SimilarityChecker.Shared (via the current using)
     private PlagiarismResultDto? _result;
     private Guid? _lastRunId;
 
@@ -253,25 +254,11 @@
         _busy = true;
         try
         {
-            // TODO: trimite fișierele către API (multipart/form-data)
-            // var response = await Api.CheckAsync(_mainFile, _refFile);
-            // _result = response.Result;
-            // _lastRunId = response.RunId;
+            var response = await Api.CheckAsync(_mainFile, _refFile);
 
-            // DEMO (șterge după ce ai API):
-            await Task.Delay(450);
-            _lastRunId = Guid.NewGuid();
-            _result = new PlagiarismResultDto
-            {
-                OverallSimilarity = _refFile is null ? 18 : 42,
-                Threshold = 25,
-                Matches = _refFile is null
-                    ? new List<PlagiarismMatchDto>()
-                    : new List<PlagiarismMatchDto>
-                    {
-                        new() { SourceName = _refFile.Name, Similarity = 42, Note = "Comparare directă cu referința." }
-                    }
-            };
+            _result = response.Result;
+            _lastRunId = response.RunId;  
+
         }
         catch (Exception ex)
         {
@@ -324,19 +311,5 @@
         if (bytes < 1024) return $"{bytes} B";
         if (bytes < 1024 * 1024) return $"{bytes / 1024.0:0.##} KB";
         return $"{bytes / (1024.0 * 1024.0):0.##} MB";
-    }
-
-    // DTO demo (în proiectul tău vor veni din SimilarityChecker.Shared)
-    private sealed class PlagiarismResultDto
-    {
-        public int OverallSimilarity { get; set; }
-        public int Threshold { get; set; } = 25;
-        public List<PlagiarismMatchDto> Matches { get; set; } = new();
-    }
-    private sealed class PlagiarismMatchDto
-    {
-        public string SourceName { get; set; } = "";
-        public int Similarity { get; set; }
-        public string Note { get; set; } = "";
-    }
+    }   
 }

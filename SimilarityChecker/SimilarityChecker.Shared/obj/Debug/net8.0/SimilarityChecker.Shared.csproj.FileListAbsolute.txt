@@ -9,3 +9,15 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityChecker\SimilarityChecker.Shared\obj\
 D:\UTM.FCIM.TI\Teza de licență\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\refint\SimilarityChecker.Shared.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.pdb
 D:\UTM.FCIM.TI\Teza de licență\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\ref\SimilarityChecker.Shared.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\bin\Debug\net8.0\SimilarityChecker.Shared.deps.json
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\bin\Debug\net8.0\SimilarityChecker.Shared.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\bin\Debug\net8.0\SimilarityChecker.Shared.pdb
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.AssemblyInfoInputs.cache
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.AssemblyInfo.cs
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.csproj.CoreCompileInputs.cache
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.sourcelink.json
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\refint\SimilarityChecker.Shared.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\SimilarityChecker.Shared.pdb
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Shared\obj\Debug\net8.0\ref\SimilarityChecker.Shared.dll

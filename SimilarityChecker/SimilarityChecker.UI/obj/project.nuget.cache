@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4KibQnZFJl0=",
+  "dgSpecHash": "HSjVthlTR9E=",
   "success": true,
-  "projectFilePath": "D:\\UTM.FCIM.TI\\Teza de licență\\SimilarityChecker\\SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
+  "projectFilePath": "D:\\UTM.FCIM.TI\\Teza de licență\\SimilarityCheckerApp\\SimilarityChecker\\SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\cbotn\\.nuget\\packages\\azure.core\\1.44.1\\azure.core.1.44.1.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\azure.storage.blobs\\12.23.0\\azure.storage.blobs.12.23.0.nupkg.sha512",
