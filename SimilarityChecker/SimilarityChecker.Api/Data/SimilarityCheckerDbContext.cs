@@ -12,11 +12,13 @@ public sealed class SimilarityCheckerDbContext : DbContext
         : base(options) { }
 
     public DbSet<DocumentEntity> Documents => Set<DocumentEntity>();
+    public DbSet<InternalMatchEntity> InternalMatches => Set<InternalMatchEntity>();
     public DbSet<OnlineSourceEntity> OnlineSources => Set<OnlineSourceEntity>();
     public DbSet<SearchQueryEntity> SearchQueries => Set<SearchQueryEntity>();
     public DbSet<SearchResultEntity> SearchResults => Set<SearchResultEntity>();
     public DbSet<MatchEntity> Matches => Set<MatchEntity>();
     public DbSet<ReportEntity> Reports => Set<ReportEntity>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,5 +61,17 @@ public sealed class SimilarityCheckerDbContext : DbContext
             .WithOne(x => x.Document)
             .HasForeignKey(x => x.DocumentId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<InternalMatchEntity>()
+           .HasOne(x => x.Document)
+           .WithMany() // sau WithMany(d => d.InternalMatchesAsMain) dacă vrei navigație
+           .HasForeignKey(x => x.DocumentId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<InternalMatchEntity>()
+            .HasOne(x => x.ComparedDocument)
+            .WithMany()
+            .HasForeignKey(x => x.ComparedDocumentId)
+            .OnDelete(DeleteBehavior.NoAction); // <- IMPORTANT
     }
 }

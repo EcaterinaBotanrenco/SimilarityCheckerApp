@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
+using SimilarityChecker.Shared.Dto;
 using System.Threading;
 using System.Threading.Tasks;
 

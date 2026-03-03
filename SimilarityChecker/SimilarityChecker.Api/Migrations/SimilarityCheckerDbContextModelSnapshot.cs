@@ -22,6 +22,57 @@ namespace SimilarityChecker.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MatchEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AlgorithmVersion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ComparedDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DocEnd")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DocStart")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MatchType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("OnlineSourceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SourceEnd")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SourceStart")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComparedDocumentId");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("OnlineSourceId");
+
+                    b.ToTable("Matches");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -64,7 +115,7 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("Documents");
                 });
 
-            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.MatchEntity", b =>
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.InternalMatchEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,40 +126,25 @@ namespace SimilarityChecker.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid>("ComparedDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DocEnd")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DocStart")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("MatchType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("OnlineSourceId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Score")
                         .HasColumnType("float");
 
-                    b.Property<int>("SourceEnd")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SourceStart")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("ComparedDocumentId");
 
                     b.HasIndex("DocumentId");
 
-                    b.HasIndex("OnlineSourceId");
-
-                    b.ToTable("Matches");
+                    b.ToTable("InternalMatches");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.OnlineSourceEntity", b =>
@@ -241,8 +277,12 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("SearchResults");
                 });
 
-            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.MatchEntity", b =>
+            modelBuilder.Entity("MatchEntity", b =>
                 {
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "ComparedDocument")
+                        .WithMany()
+                        .HasForeignKey("ComparedDocumentId");
+
                     b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "Document")
                         .WithMany("Matches")
                         .HasForeignKey("DocumentId")
@@ -252,12 +292,32 @@ namespace SimilarityChecker.Api.Migrations
                     b.HasOne("SimilarityChecker.Api.Data.Entities.OnlineSourceEntity", "OnlineSource")
                         .WithMany("Matches")
                         .HasForeignKey("OnlineSourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("ComparedDocument");
 
                     b.Navigation("Document");
 
                     b.Navigation("OnlineSource");
+                });
+
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.InternalMatchEntity", b =>
+                {
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "ComparedDocument")
+                        .WithMany()
+                        .HasForeignKey("ComparedDocumentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ComparedDocument");
+
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.ReportEntity", b =>

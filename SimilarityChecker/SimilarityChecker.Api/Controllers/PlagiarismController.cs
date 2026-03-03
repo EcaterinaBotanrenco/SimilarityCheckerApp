@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimilarityChecker.Api.Models;
-using SimilarityChecker.UI.Services;
+using SimilarityChecker.Shared.Dto;
 
 namespace SimilarityChecker.Api.Controllers;
 

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimilarityChecker.UI.Authentication;
-using SimilarityChecker.UI.Data;
 using SimilarityChecker.UI.Services;
 using System;
 using System.Collections.Generic;
@@ -33,7 +32,6 @@ namespace SimilarityChecker.UI
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddControllers();
-            services.AddSingleton<WeatherForecastService>();
 
             // Cookie auth
             services
@@ -50,12 +48,22 @@ namespace SimilarityChecker.UI
             services.AddAuthorization();
             services.AddHttpContextAccessor();
 
-            // Custom auth provider + services
+            // Auth
             services.AddScoped<CustomAuthStateProvider>();
             services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
             services.AddScoped<IAuthService, AuthService>();
             services.AddSingleton<IUserStore, InMemoryUserStore>();
-            ;
+
+            // API clients (typed HttpClient)
+            var apiBase = Configuration["ApiBaseUrl"] ?? "https://localhost:7260/";
+            services.AddHttpClient<IDocumentScanApiClient, DocumentScanApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(apiBase);
+            });
+            services.AddHttpClient<IPlagiarismApiClient, PlagiarismApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(apiBase);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

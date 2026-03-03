@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimilarityChecker.Api.Data;
+using SimilarityChecker.Api.Services.InternalScan;
 using SimilarityChecker.Api.Services.Plagiarism;
 using SimilarityChecker.Api.Services.TextExtraction;
-using SimilarityChecker.UI.Services;
+using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddSingleton<TextExtractionService>();
 builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();
+builder.Services.AddScoped<IInternalScanService, InternalScanService>();
 
 // ===== DI: Plagiarism =====
 builder.Services.AddSingleton<IPlagiarismService, PlagiarismService>();

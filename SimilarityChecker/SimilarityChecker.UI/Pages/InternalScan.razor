@@ -1,0 +1,279 @@
+﻿@page "/internal-scan"
+@using SimilarityChecker.Shared.Dtos
+@inject SimilarityChecker.UI.Services.IDocumentScanApiClient Api
+@inject NavigationManager Nav
+
+<h2 class="page-title">Scanare internă</h2>
+<p class="page-subtitle">
+    Încarcă un document și verifică similitudinea lui cu documentele existente în baza de date.
+</p>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+<div class="sc-grid">
+    <!-- Upload card -->
+    <div class="sc-card">
+        <div class="sc-card-header">
+            <div>
+                <div class="sc-kicker">Pasul 1</div>
+                <div class="sc-card-title">Încarcă documentul</div>
+            </div>
+        </div>
+
+        <div class="sc-upload-box">
+            <InputFile OnChange="HandleFileChange" class="form-control" />
+            <div class="sc-upload-meta">
+                <span>Formate: PDF / DOCX / TXT</span>
+                <span>Max: 20MB</span>
+            </div>
+
+            @if (_selectedFile is not null)
+            {
+                <div class="sc-file-pill">
+                    <span class="sc-dot"></span>
+                    <b>@_selectedFile.Name</b>
+                    <span class="sc-muted">(@FormatSize(_selectedFile.Size))</span>
+                </div>
+            }
+        </div>
+
+        @if (_uploadResult is not null)
+        {
+            <div class="sc-success">
+                <b>Încărcare reușită</b>
+                <div class="sc-muted">Fișier: @_uploadResult.FileName</div>
+                <div class="sc-muted">Cuvinte: @_uploadResult.WordCount</div>
+            </div>
+        }
+    </div>
+
+    <!-- Scan card -->
+    <div class="sc-card">
+        <div class="sc-card-header">
+            <div>
+                <div class="sc-kicker">Pasul 2</div>
+                <div class="sc-card-title">Rulează scanarea</div>
+            </div>
+        </div>
+
+        <div class="sc-row">
+            <div class="sc-col sc-actions">
+                <button class="btn btn-success sc-btn"
+                        @onclick="UploadAndScan"
+                        disabled="@(_selectedFile is null || _busy)">
+                    @(_busy ? "Se procesează..." : "Începe scanarea")
+                </button>
+
+                <button class="btn btn-outline-secondary sc-btn"
+                        @onclick="LoadReport"
+                        disabled="@(_busy || _uploadResult is null)">
+                    Reîncarcă raport
+                </button>
+
+                <button class="btn btn-outline-dark sc-btn"
+                        @onclick="DownloadPdf"
+                        disabled="@(_busy || _uploadResult is null || _report is null)">
+                    Descarcă raport (PDF)
+                </button>
+            </div>
+        </div>
+
+        @if (_scanStart is not null)
+        {
+            <div class="alert alert-info mt-3 mb-0">
+                Scanare finalizată. Documente comparate: <b>@_scanStart.ComparedDocuments</b>
+            </div>
+        }
+    </div>
+</div>
+
+@if (_report is not null)
+{
+    var overall = GetOverallPercent(_report);
+    var average = GetAveragePercent(_report);
+    
+    <div class="sc-card mt-3">
+        <div class="sc-card-header sc-header-split">
+            <div>
+                <div class="sc-kicker">Rezumat</div>
+                <div class="sc-card-title">Nivel de similitudine</div>
+            </div>
+            <div class="sc-muted small">
+                Generat la (UTC): @_report.GeneratedAtUtc.ToString("yyyy-MM-dd HH:mm:ss")
+            </div>
+        </div>
+
+        <div class="sc-summary">
+            <!-- Donut -->
+            <div class="sc-donut-wrap">
+                <div class="sc-donut" style="--p:@overall;">
+                    <div class="sc-donut-center">
+                        <div class="sc-donut-value">@overall%</div>
+                        <div class="sc-donut-label">nivel</div>
+                    </div>
+                </div>
+                <div class="sc-donut-sub">
+                    <div class="sc-muted">Media: <b>@average%</b></div>
+                    <div class="sc-badge @GetBadgeClass(overall)">@GetBadgeText(overall)</div>
+                </div>
+            </div>
+
+            <!-- Top matches -->
+            <div class="sc-results">
+                <div class="sc-results-title">Rezultate (top)</div>
+
+                @if (_report.Hits.Count == 0)
+                {
+                    <div class="alert alert-warning mb-0">
+                        Nu s-au găsit documente similare peste prag.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Document comparat</th>
+                                    <th style="width:220px;">Similitudine</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var hit in _report.Hits.OrderByDescending(x => x.SimilarityScore).Take(10))
+                                {
+                                    var p = (int)Math.Round(hit.SimilarityScore * 100);
+                                    <tr>
+                                        <td>@hit.ComparedFileName</td>
+                                        <td>
+                                            <div class="progress" style="height: 18px;">
+                                                <div class="progress-bar" role="progressbar" style="width:@p%">
+                                                    @p%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private enum UiPhase { None, Upload, Scan, Report }
+    private UiPhase _phase = UiPhase.None;
+
+    private bool _busy;
+    private string? _error;
+
+    private IBrowserFile? _selectedFile;
+
+    private DocumentUploadResponseDto? _uploadResult;
+    private InternalScanStartResponseDto? _scanStart;
+    private InternalScanReportDto? _report;
+
+    private Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        _error = null;
+        _selectedFile = e.File;
+
+        // reset stare
+        _uploadResult = null;
+        _scanStart = null;
+        _report = null;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task UploadAndScan()
+    {
+        if (_selectedFile is null) return;
+
+        try
+        {
+            _busy = true;
+            _error = null;
+
+            // 1) Upload
+            _phase = UiPhase.Upload;
+            await using var stream = _selectedFile.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            _uploadResult = await Api.UploadDocumentAsync(stream, _selectedFile.Name);
+
+            // 2) Start scan
+            _phase = UiPhase.Scan;
+            _scanStart = await Api.StartInternalScanAsync(_uploadResult.DocumentId);
+
+            // 3) Load report
+            _phase = UiPhase.Report;
+            _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+            _phase = UiPhase.None;
+        }
+    }
+
+    private async Task LoadReport()
+    {
+        if (_uploadResult is null) return;
+
+        try
+        {
+            _busy = true;
+            _phase = UiPhase.Report;
+            _error = null;
+
+            _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+            _phase = UiPhase.None;
+        }
+    }
+
+    private void DownloadPdf()
+    {
+        if (_uploadResult is null) return;
+
+        // IMPORTANT: endpoint nou în API (vezi secțiunea 4)
+        var url = $"https://localhost:7260/api/internal-scan/report/{_uploadResult.DocumentId}/pdf";
+        Nav.NavigateTo(url, forceLoad: true);
+    }
+
+    private static int GetOverallPercent(InternalScanReportDto report)
+        => report.Hits.Count == 0 ? 0 : (int)Math.Round(report.Hits.Max(x => x.SimilarityScore) * 100);
+
+    private static int GetAveragePercent(InternalScanReportDto report)
+        => report.Hits.Count == 0 ? 0 : (int)Math.Round(report.Hits.Average(x => x.SimilarityScore) * 100);
+
+    private static string GetBadgeText(int overall)
+        => overall >= 70 ? "Nivel ridicat" : overall >= 30 ? "Nivel mediu" : "Nivel scăzut";
+
+    private static string GetBadgeClass(int overall)
+        => overall >= 70 ? "sc-badge-danger" : overall >= 30 ? "sc-badge-warn" : "sc-badge-ok";
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        double kb = bytes / 1024.0;
+        if (kb < 1024) return $"{kb:0.##} KB";
+        double mb = kb / 1024.0;
+        return $"{mb:0.##} MB";
+    }
+}

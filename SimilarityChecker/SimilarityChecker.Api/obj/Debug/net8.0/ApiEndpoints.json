@@ -1,5 +1,99 @@
 [
   {
+    "ContainingType": "SimilarityChecker.Api.Controllers.DocumentsController",
+    "Method": "Upload",
+    "RelativePath": "api/documents/upload",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Api.Models.DocumentUploadResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "GetReport",
+    "RelativePath": "api/internal-scan/report/{documentId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "documentId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Shared.Dto.InternalScanReportDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "DownloadPdf",
+    "RelativePath": "api/internal-scan/report/{documentId}/pdf",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "documentId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "Start",
+    "RelativePath": "api/internal-scan/start",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "documentId",
+        "Type": "System.Guid",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Api.Models.InternalScanStartResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "SimilarityChecker.Api.Controllers.PlagiarismController",
     "Method": "Check",
     "RelativePath": "api/plagiarism/check",
@@ -20,7 +114,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "SimilarityChecker.UI.Services.PlagiarismCheckResponse",
+        "Type": "SimilarityChecker.Shared.Dto.PlagiarismCheckResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",

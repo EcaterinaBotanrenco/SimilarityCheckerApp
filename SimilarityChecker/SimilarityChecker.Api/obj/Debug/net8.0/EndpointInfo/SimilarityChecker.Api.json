@@ -5,6 +5,157 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/documents/upload": {
+      "post": {
+        "tags": [
+          "Documents"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "File": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentUploadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal-scan/start": {
+      "post": {
+        "tags": [
+          "InternalScan"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanStartResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanStartResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal-scan/report/{documentId}": {
+      "get": {
+        "tags": [
+          "InternalScan"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal-scan/report/{documentId}/pdf": {
+      "get": {
+        "tags": [
+          "InternalScan"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/plagiarism/check": {
       "post": {
         "tags": [
@@ -87,6 +238,161 @@
   },
   "components": {
     "schemas": {
+      "DocumentUploadResponse": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "wordCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sha256": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FragmentTypeDto": {
+        "enum": [
+          1,
+          2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "InternalScanFragmentDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/FragmentTypeDto"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "sourceTokenStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourceTokenEnd": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "refTokenStart": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "refTokenEnd": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "referenceDocumentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "referenceFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceSnippet": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceSnippet": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InternalScanHitDto": {
+        "type": "object",
+        "properties": {
+          "comparedDocumentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparedFileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "similarityScore": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InternalScanReportDto": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "documentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generatedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalScanHitDto"
+            },
+            "nullable": true
+          },
+          "fragments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalScanFragmentDto"
+            },
+            "nullable": true
+          },
+          "exactPercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paraphrasePercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cleanPercent": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InternalScanStartResponse": {
+        "type": "object",
+        "properties": {
+          "reportId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "documentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparedDocuments": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "PlagiarismCheckResponse": {
         "type": "object",
         "properties": {

@@ -1092,7 +1092,7 @@
           }
         }
       },
-      "QuestPDF/2025.12.3": {
+      "QuestPDF/2026.2.0": {
         "type": "package",
         "compile": {
           "lib/net8.0/QuestPDF.dll": {
@@ -3958,10 +3958,10 @@
         "pdfpig.png"
       ]
     },
-    "QuestPDF/2025.12.3": {
-      "sha512": "cJ1Kvm3wFjs8uLOMze0wjOCAkicraLmUhhHYF2v33S2c7syA5RL+Mp5ty0HnsvFwqF8FaDmn2elndklms4SnwA==",
+    "QuestPDF/2026.2.0": {
+      "sha512": "BRjl/iXknSC/uyWmn2eOwKLqgFhwVwrtic181IzFiCe49idGnjlQ1QiiXBxb7MKPd2Tgd/JL9yCija6MiQB1yA==",
       "type": "package",
-      "path": "questpdf/2025.12.3",
+      "path": "questpdf/2026.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4018,7 +4018,7 @@
         "lib/net8.0/QuestPDF.xml",
         "lib/netstandard2.0/QuestPDF.dll",
         "lib/netstandard2.0/QuestPDF.xml",
-        "questpdf.2025.12.3.nupkg.sha512",
+        "questpdf.2026.2.0.nupkg.sha512",
         "questpdf.nuspec",
         "runtimes/linux-arm64/native/libQuestPdfSkia.so",
         "runtimes/linux-arm64/native/libqpdf.so",
@@ -5650,7 +5650,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.2",
       "NEST >= 7.17.5",
       "PdfPig >= 0.1.13",
-      "QuestPDF >= 2025.12.3",
+      "QuestPDF >= 2026.2.0",
       "SimilarityChecker.Shared >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.6.2",
       "Ude.NetStandard >= 1.2.0"
@@ -5743,7 +5743,7 @@
           },
           "QuestPDF": {
             "target": "Package",
-            "version": "[2025.12.3, )"
+            "version": "[2026.2.0, )"
           },
           "Swashbuckle.AspNetCore": {
             "target": "Package",

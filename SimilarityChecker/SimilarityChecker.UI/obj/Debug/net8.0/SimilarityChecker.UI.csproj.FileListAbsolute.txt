@@ -238,10 +238,10 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.development.json
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\Similari.45E01F10.Up2Date
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\refint\SimilarityChecker.UI.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.pdb
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.genruntimeconfig.cache
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\ref\SimilarityChecker.UI.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

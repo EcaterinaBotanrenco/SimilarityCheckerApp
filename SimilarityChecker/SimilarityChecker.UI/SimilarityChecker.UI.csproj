@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.PowerBI.Api" Version="5.0.0" />
     <PackageReference Include="NPOI" Version="2.7.5" />
     <PackageReference Include="PdfPig" Version="0.1.13" />
-    <PackageReference Include="QuestPDF" Version="2025.12.3" />
+    <PackageReference Include="QuestPDF" Version="2026.2.0" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
 

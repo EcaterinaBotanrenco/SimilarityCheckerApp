@@ -2,7 +2,7 @@
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using SimilarityChecker.UI.Services;
+using SimilarityChecker.Shared.Dto;
 using System;
 using System.Threading.Tasks;
 

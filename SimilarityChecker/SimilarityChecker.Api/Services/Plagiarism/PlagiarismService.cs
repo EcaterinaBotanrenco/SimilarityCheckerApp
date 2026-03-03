@@ -1,5 +1,5 @@
 ﻿using SimilarityChecker.Api.Services.TextProcessing;
-using SimilarityChecker.UI.Services;
+using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
 
 namespace SimilarityChecker.Api.Services.Plagiarism

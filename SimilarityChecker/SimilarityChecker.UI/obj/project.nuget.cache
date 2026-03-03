@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "HSjVthlTR9E=",
+  "dgSpecHash": "8g0LS8DyhkM=",
   "success": true,
   "projectFilePath": "D:\\UTM.FCIM.TI\\Teza de licență\\SimilarityCheckerApp\\SimilarityChecker\\SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
   "expectedPackageFiles": [
@@ -25,7 +25,7 @@
     "C:\\Users\\cbotn\\.nuget\\packages\\npoi\\2.7.5\\npoi.2.7.5.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\nsax\\1.0.2\\nsax.1.0.2.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\pdfpig\\0.1.13\\pdfpig.0.1.13.nupkg.sha512",
-    "C:\\Users\\cbotn\\.nuget\\packages\\questpdf\\2025.12.3\\questpdf.2025.12.3.nupkg.sha512",
+    "C:\\Users\\cbotn\\.nuget\\packages\\questpdf\\2026.2.0\\questpdf.2026.2.0.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\sharpziplib\\1.4.2\\sharpziplib.1.4.2.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\sixlabors.fonts\\1.0.1\\sixlabors.fonts.1.0.1.nupkg.sha512",
     "C:\\Users\\cbotn\\.nuget\\packages\\sixlabors.imagesharp\\2.1.11\\sixlabors.imagesharp.2.1.11.nupkg.sha512",
