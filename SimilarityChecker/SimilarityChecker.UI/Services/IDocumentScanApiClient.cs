@@ -1,4 +1,4 @@
-﻿using SimilarityChecker.Shared.Dtos;
+﻿using SimilarityChecker.Shared.Dto;
 using System;
 using System.IO;
 using System.Threading;

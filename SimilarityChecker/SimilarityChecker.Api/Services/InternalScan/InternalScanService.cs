@@ -137,6 +137,7 @@ public sealed class InternalScanService : IInternalScanService
         var report = new ReportEntity
         {
             DocumentId = doc.Id,
+            UserId = doc.UserId,
             GeneratedAtUtc = DateTime.UtcNow,
             Status = "Completed",
             ReportJson = JsonSerializer.Serialize(reportDto)

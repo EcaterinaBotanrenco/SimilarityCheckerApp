@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SimilarityChecker.UI.Authentication;
 using SimilarityChecker.UI.Services;
 using System;
 using System.Collections.Generic;
@@ -37,7 +39,9 @@ namespace SimilarityChecker.UI
             builder.Services.AddScoped<IDocumentScanApiClient>(sp =>
             {
                 var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api");
-                return new DocumentScanApiClient(http);
+                var sessionStore = sp.GetRequiredService<AuthSessionStore>();
+
+                return new DocumentScanApiClient(http, sessionStore);
             });
         }
 

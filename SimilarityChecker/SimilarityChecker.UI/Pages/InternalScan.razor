@@ -1,7 +1,11 @@
 ﻿@page "/internal-scan"
-@using SimilarityChecker.Shared.Dtos
+@using SimilarityChecker.Shared.Dto
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
 @inject SimilarityChecker.UI.Services.IDocumentScanApiClient Api
 @inject NavigationManager Nav
+
+<LoginRequiredModal Visible="@_showLoginModal" OnClose="@CloseLoginModal" />
 
 <h2 class="page-title">Scanare internă</h2>
 <p class="page-subtitle">
@@ -62,7 +66,7 @@
         <div class="sc-row">
             <div class="sc-col sc-actions">
                 <button class="btn btn-success sc-btn"
-                        @onclick="UploadAndScan"
+                        @onclick="StartScan"
                         disabled="@(_selectedFile is null || _busy)">
                     @(_busy ? "Se procesează..." : "Începe scanarea")
                 </button>
@@ -177,6 +181,63 @@
     private DocumentUploadResponseDto? _uploadResult;
     private InternalScanStartResponseDto? _scanStart;
     private InternalScanReportDto? _report;
+
+    private bool _showLoginModal;
+
+    private async Task StartScan()
+    {
+        _error = null;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        if (!isAuthenticated)
+        {
+            _showLoginModal = true;
+            return;
+        }
+
+        await RunScanAsync();
+    }
+
+    private async Task RunScanAsync()
+    {
+        if (_selectedFile is null) return;
+
+        try
+        {
+            _busy = true;
+            _error = null;
+
+            // 1) Upload
+            _phase = UiPhase.Upload;
+            await using var stream = _selectedFile.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            _uploadResult = await Api.UploadDocumentAsync(stream, _selectedFile.Name);
+
+            // 2) Start scan
+            _phase = UiPhase.Scan;
+            _scanStart = await Api.StartInternalScanAsync(_uploadResult.DocumentId);
+
+            // 3) Load report
+            _phase = UiPhase.Report;
+            _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+            _phase = UiPhase.None;
+        }
+    }
+
+    private Task CloseLoginModal()
+    {
+        _showLoginModal = false;
+        return Task.CompletedTask;
+    }
 
     private Task HandleFileChange(InputFileChangeEventArgs e)
     {

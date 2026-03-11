@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimilarityChecker.Api.Data;
 using SimilarityChecker.Api.Data.Entities;
@@ -6,10 +7,12 @@ using SimilarityChecker.Api.Models;
 using SimilarityChecker.Api.Services;
 using SimilarityChecker.Api.Services.TextExtraction;
 using SimilarityChecker.UI.Services.TextExtraction;
+using System.Security.Claims;
 
 namespace SimilarityChecker.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/documents")]
 public sealed class DocumentsController : ControllerBase
 {
@@ -25,11 +28,13 @@ public sealed class DocumentsController : ControllerBase
     [HttpPost("upload")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<DocumentUploadResponse>> Upload(
-    [FromForm] DocumentUploadRequest request,
-    CancellationToken ct)
+        [FromForm] DocumentUploadRequest request,
+        CancellationToken ct)
     {
         if (request.File == null || request.File.Length == 0)
             return BadRequest("Fișierul este obligatoriu.");
+
+        var currentUserId = GetCurrentUserId();
 
         byte[] bytes;
         using (var ms = new MemoryStream())
@@ -39,10 +44,11 @@ public sealed class DocumentsController : ControllerBase
         }
 
         var fileName = request.File.FileName;
-        var sha = Hashing.Sha256Hex(bytes);
+        var sha = Hasher.Sha256Hex(bytes);
 
-        // dacă vrei deduplicare: dacă există deja același fișier, îl returnăm
-        var existing = await _db.Documents.FirstOrDefaultAsync(d => d.Sha256 == sha, ct);
+        var existing = await _db.Documents
+            .FirstOrDefaultAsync(d => d.Sha256 == sha && d.UserId == currentUserId, ct);
+
         if (existing != null)
         {
             return Ok(new DocumentUploadResponse
@@ -62,6 +68,7 @@ public sealed class DocumentsController : ControllerBase
             FileName = fileName,
             FileType = Path.GetExtension(fileName).TrimStart('.').ToLowerInvariant(),
             Sha256 = sha,
+            UserId = currentUserId,
             ExtractedText = text,
             WordCount = wordCount,
             CreatedAtUtc = DateTime.UtcNow
@@ -82,6 +89,18 @@ public sealed class DocumentsController : ControllerBase
     private static int CountWords(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return 0;
-        return text.Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries).Length;
+
+        return text.Split(new[] { ' ', '\r', '\n', '\t' },
+            StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim.Value, out var userId))
+            throw new InvalidOperationException("User ID claim not found or invalid.");
+
+        return userId;
     }
 }

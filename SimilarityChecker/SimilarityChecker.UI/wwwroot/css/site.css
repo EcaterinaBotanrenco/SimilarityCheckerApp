@@ -392,3 +392,53 @@ a, .btn-link {
     white-space: pre-wrap;
     line-height: 1.35;
 }
+.login-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.login-modal-box {
+    width: 100%;
+    max-width: 480px;
+    background: #1f1f1f;
+    color: white;
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+    .login-modal-box h2 {
+        font-size: 2rem;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .login-modal-box p {
+        text-align: center;
+        color: #d0d0d0;
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }
+
+.login-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.login-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}

@@ -4,6 +4,19 @@ using System.Threading.Tasks;
 
 namespace SimilarityChecker.Shared.Dto
 {
+    public sealed class DocumentUploadResponseDto
+    {
+        public Guid DocumentId { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public int WordCount { get; set; }
+        public string Sha256 { get; set; } = string.Empty;
+    }
+    public sealed class InternalScanStartResponseDto
+    {
+        public Guid ReportId { get; set; }
+        public Guid DocumentId { get; set; }
+        public int ComparedDocuments { get; set; }
+    }
     public sealed class PlagiarismCheckRequest
     {
         public string MainFileName { get; set; } = "";

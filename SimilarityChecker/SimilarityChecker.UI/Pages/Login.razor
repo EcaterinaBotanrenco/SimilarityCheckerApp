@@ -66,21 +66,29 @@
         _error = null;
         _busy = true;
 
-        var result = await Auth.SignInAsync(_model.Email, _model.Password, _model.RememberMe);
-
-        _busy = false;
-
-        if (!result.Success)
+        try
         {
-            _error = result.ErrorMessage ?? "Autentificare eșuată.";
-            return;
-        }
+            var result = await Auth.SignInAsync(_model.Email, _model.Password, _model.RememberMe);
 
-        // redirect
-        if (!string.IsNullOrWhiteSpace(_returnUrl))
-            Nav.NavigateTo("/" + _returnUrl, forceLoad: true);
-        else
-            Nav.NavigateTo("/", forceLoad: true);
+            if (!result.Success)
+            {
+                _error = result.ErrorMessage ?? "Autentificare eșuată.";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_returnUrl))
+                Nav.NavigateTo("/" + _returnUrl, forceLoad: false);
+            else
+                Nav.NavigateTo("/", forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private sealed class LoginModel

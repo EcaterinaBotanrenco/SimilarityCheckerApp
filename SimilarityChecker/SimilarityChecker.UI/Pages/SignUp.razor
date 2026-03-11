@@ -21,16 +21,17 @@
         <DataAnnotationsValidator />
 
         <div style="display:flex; gap:12px;">
+            
             <div style="flex:1; margin-bottom:12px;">
                 <label>Nume</label>
-                <InputText class="form-control" @bind-Value="_model.FirstName" />
-                <ValidationMessage For="@(() => _model.FirstName)" />
+                <InputText class="form-control" @bind-Value="_model.LastName" />
+                <ValidationMessage For="@(() => _model.LastName)" />
             </div>
 
             <div style="flex:1; margin-bottom:12px;">
                 <label>Prenume</label>
-                <InputText class="form-control" @bind-Value="_model.LastName" />
-                <ValidationMessage For="@(() => _model.LastName)" />
+                <InputText class="form-control" @bind-Value="_model.FirstName" />
+                <ValidationMessage For="@(() => _model.FirstName)" />
             </div>
         </div>
 
@@ -120,19 +121,19 @@
             return;
         }
 
-        // după signup -> autologin (în AuthService) + redirect
-        Nav.NavigateTo("/dashboard", forceLoad: true);
+        _error = "Cont creat cu succes.";
+        Nav.NavigateTo("/", forceLoad: false);
     }
 
     private sealed class SignupModel
     {
         [Required(ErrorMessage = "Numele este obligatoriu.")]
         [MinLength(2, ErrorMessage = "Numele trebuie să aibă minim 2 caractere.")]
-        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
 
         [Required(ErrorMessage = "Prenumele este obligatoriu.")]
         [MinLength(2, ErrorMessage = "Prenumele trebuie să aibă minim 2 caractere.")]
-        public string LastName { get; set; } = "";
+        public string FirstName { get; set; } = "";
 
         [Required(ErrorMessage = "Email-ul este obligatoriu.")]
         [EmailAddress(ErrorMessage = "Email invalid.")]

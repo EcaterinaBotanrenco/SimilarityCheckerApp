@@ -1,52 +1,79 @@
-﻿using SimilarityChecker.Shared.Dtos;
+﻿using SimilarityChecker.Shared.Dto;
+using SimilarityChecker.Shared.Dtos;
+using SimilarityChecker.UI.Authentication;
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SimilarityChecker.UI.Services;
-
-public sealed class DocumentScanApiClient : IDocumentScanApiClient
+namespace SimilarityChecker.UI.Services
 {
-    private readonly HttpClient _http;
-
-    public DocumentScanApiClient(HttpClient http) => _http = http;
-
-    public async Task<DocumentUploadResponseDto> UploadDocumentAsync(Stream fileStream, string fileName, CancellationToken ct = default)
+    public sealed class DocumentScanApiClient : IDocumentScanApiClient
     {
-        using var content = new MultipartFormDataContent();
+        private readonly HttpClient _http;
+        private readonly AuthSessionStore _sessionStore;
 
-        var fileContent = new StreamContent(fileStream);
-        // (opțional) content-type:
-        // fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        public DocumentScanApiClient(HttpClient http, AuthSessionStore sessionStore)
+        {
+            _http = http;
+            _sessionStore = sessionStore;
+        }
 
-        content.Add(fileContent, "File", fileName); // numele "File" trebuie să corespundă cu DocumentUploadRequest.File
+        private void AddAuthorizationHeader(HttpRequestMessage request)
+        {
+            var token = _sessionStore.Session?.Token;
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
 
-        var resp = await _http.PostAsync("api/documents/upload", content, ct);
-        resp.EnsureSuccessStatusCode();
+        public async Task<DocumentUploadResponseDto> UploadDocumentAsync(Stream fileStream, string fileName, CancellationToken ct = default)
+        {
+            using var form = new MultipartFormDataContent();
+            using var fileContent = new StreamContent(fileStream);
 
-        var dto = await resp.Content.ReadFromJsonAsync<DocumentUploadResponseDto>(cancellationToken: ct);
-        return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (upload).");
-    }
+            form.Add(fileContent, "File", fileName);
 
-    public async Task<InternalScanStartResponseDto> StartInternalScanAsync(Guid documentId, CancellationToken ct = default)
-    {
-        var url = $"api/internal-scan/start?documentId={documentId}";
-        var resp = await _http.PostAsync(url, content: null, ct);
-        resp.EnsureSuccessStatusCode();
+            using var request = new HttpRequestMessage(HttpMethod.Post, "api/documents/upload")
+            {
+                Content = form
+            };
 
-        var dto = await resp.Content.ReadFromJsonAsync<InternalScanStartResponseDto>(cancellationToken: ct);
-        return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (start scan).");
-    }
+            AddAuthorizationHeader(request);
 
-    public async Task<InternalScanReportDto> GetInternalReportAsync(Guid documentId, CancellationToken ct = default)
-    {
-        var resp = await _http.GetAsync($"api/internal-scan/report/{documentId}", ct);
-        resp.EnsureSuccessStatusCode();
+            var response = await _http.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
 
-        var dto = await resp.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
-        return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (report).");
+            var dto = await response.Content.ReadFromJsonAsync<DocumentUploadResponseDto>(cancellationToken: ct);
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (upload).");
+        }
+
+        public async Task<InternalScanStartResponseDto> StartInternalScanAsync(Guid documentId, CancellationToken ct = default)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"api/internal-scan/start?documentId={documentId}");
+            AddAuthorizationHeader(request);
+
+            var response = await _http.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
+
+            var dto = await response.Content.ReadFromJsonAsync<InternalScanStartResponseDto>(cancellationToken: ct);
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (start scan).");
+        }
+
+        public async Task<InternalScanReportDto> GetInternalReportAsync(Guid documentId, CancellationToken ct = default)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"api/internal-scan/report/{documentId}");
+            AddAuthorizationHeader(request);
+
+            var response = await _http.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
+
+            var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (report).");
+        }
     }
 }

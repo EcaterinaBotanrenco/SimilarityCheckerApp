@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimilarityChecker.Api.Data.Entities;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace SimilarityChecker.Api.Data;
@@ -11,6 +9,7 @@ public sealed class SimilarityCheckerDbContext : DbContext
     public SimilarityCheckerDbContext(DbContextOptions<SimilarityCheckerDbContext> options)
         : base(options) { }
 
+    public DbSet<AppUserEntity> AppUsers => Set<AppUserEntity>();
     public DbSet<DocumentEntity> Documents => Set<DocumentEntity>();
     public DbSet<InternalMatchEntity> InternalMatches => Set<InternalMatchEntity>();
     public DbSet<OnlineSourceEntity> OnlineSources => Set<OnlineSourceEntity>();
@@ -19,10 +18,13 @@ public sealed class SimilarityCheckerDbContext : DbContext
     public DbSet<MatchEntity> Matches => Set<MatchEntity>();
     public DbSet<ReportEntity> Reports => Set<ReportEntity>();
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AppUserEntity>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
 
         modelBuilder.Entity<OnlineSourceEntity>()
             .HasIndex(x => x.Url)
@@ -31,7 +33,18 @@ public sealed class SimilarityCheckerDbContext : DbContext
         modelBuilder.Entity<DocumentEntity>()
             .HasIndex(x => x.Sha256);
 
-        // cascades (logic, dar controlat)
+        modelBuilder.Entity<AppUserEntity>()
+            .HasMany(x => x.Documents)
+            .WithOne(x => x.User)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AppUserEntity>()
+            .HasMany(x => x.Reports)
+            .WithOne(x => x.User)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<SearchQueryEntity>()
             .HasMany(x => x.Results)
             .WithOne(x => x.SearchQuery)
@@ -63,15 +76,15 @@ public sealed class SimilarityCheckerDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<InternalMatchEntity>()
-           .HasOne(x => x.Document)
-           .WithMany() // sau WithMany(d => d.InternalMatchesAsMain) dacă vrei navigație
-           .HasForeignKey(x => x.DocumentId)
-           .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(x => x.Document)
+            .WithMany()
+            .HasForeignKey(x => x.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<InternalMatchEntity>()
             .HasOne(x => x.ComparedDocument)
             .WithMany()
             .HasForeignKey(x => x.ComparedDocumentId)
-            .OnDelete(DeleteBehavior.NoAction); // <- IMPORTANT
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -73,6 +73,44 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("Matches");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.AppUserEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RolesCsv")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("AppUsers");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -105,12 +143,17 @@ namespace SimilarityChecker.Api.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("WordCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Sha256");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Documents");
                 });
@@ -214,9 +257,14 @@ namespace SimilarityChecker.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Reports");
                 });
@@ -301,6 +349,17 @@ namespace SimilarityChecker.Api.Migrations
                     b.Navigation("OnlineSource");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
+                {
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.AppUserEntity", "User")
+                        .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.InternalMatchEntity", b =>
                 {
                     b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "ComparedDocument")
@@ -328,7 +387,15 @@ namespace SimilarityChecker.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.AppUserEntity", "User")
+                        .WithMany("Reports")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Document");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.SearchQueryEntity", b =>
@@ -351,6 +418,13 @@ namespace SimilarityChecker.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("SearchQuery");
+                });
+
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.AppUserEntity", b =>
+                {
+                    b.Navigation("Documents");
+
+                    b.Navigation("Reports");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>

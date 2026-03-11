@@ -1,17 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SimilarityChecker.Api.Data;
+using SimilarityChecker.Api.Services;
+using SimilarityChecker.Api.Services.Auth;
 using SimilarityChecker.Api.Services.InternalScan;
 using SimilarityChecker.Api.Services.Plagiarism;
 using SimilarityChecker.Api.Services.TextExtraction;
 using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ===== Controllers (MVC) =====
 builder.Services.AddControllers();
-
-// ===== Swagger =====
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -21,19 +23,43 @@ builder.Services.AddDbContext<SimilarityCheckerDbContext>(options =>
     options.UseSqlServer(cs);
 });
 
-// ===== DI: Text extraction =====
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"]!;
+var jwtIssuer = jwtSection["Issuer"]!;
+var jwtAudience = jwtSection["Audience"]!;
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<JwtTokenService>();
+
 builder.Services.AddSingleton<TextExtractionService>();
 builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();
 builder.Services.AddScoped<IInternalScanService, InternalScanService>();
 
-// ===== DI: Plagiarism =====
 builder.Services.AddSingleton<IPlagiarismService, PlagiarismService>();
 
 var app = builder.Build();
 
-// ===== HTTP pipeline =====
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -42,11 +68,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Dacă vei folosi auth în API mai târziu, aici vor veni:
-// app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
 
-// IMPORTANT: map controllers
 app.MapControllers();
 
 app.Run();

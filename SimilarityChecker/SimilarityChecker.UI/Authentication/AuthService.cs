@@ -1,96 +1,96 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using SimilarityChecker.Shared.Dtos;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace SimilarityChecker.UI.Authentication
 {
     public sealed class AuthService : IAuthService
     {
-        private readonly IUserStore _users;
-        private readonly IHttpContextAccessor _http;
+        private readonly HttpClient _httpClient;
+        private readonly AuthSessionStore _sessionStore;
         private readonly CustomAuthStateProvider _authState;
 
-        public AuthService(IUserStore users, IHttpContextAccessor http, CustomAuthStateProvider authState)
+        public AuthService(
+            HttpClient httpClient,
+            AuthSessionStore sessionStore,
+            CustomAuthStateProvider authState)
         {
-            _users = users;
-            _http = http;
+            _httpClient = httpClient;
+            _sessionStore = sessionStore;
             _authState = authState;
         }
 
         public async Task<AuthResult> SignInAsync(string email, string password, bool rememberMe)
         {
-            var user = await _users.FindByEmailAsync(email);
-            if (user is null)
-                return AuthResult.Fail("Utilizator inexistent.");
-
-            if (!PasswordHasher.Verify(password, user.PasswordHash))
-                return AuthResult.Fail("Parolă incorectă.");
-
-            var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.DisplayName),
-            new(ClaimTypes.Email, user.Email),
-        };
-            claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            var props = new AuthenticationProperties
+            var request = new LoginRequestDto
             {
-                IsPersistent = rememberMe,
-                AllowRefresh = true,
+                Email = email,
+                Password = password
             };
 
-            var ctx = _http.HttpContext;
-            if (ctx is null)
-                return AuthResult.Fail("Context HTTP indisponibil (verifică configurarea).");
+            var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
+            var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
 
-            await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
-            _authState.Notify();
+            if (result is null)
+                return AuthResult.Fail("Răspuns invalid de la server.");
+
+            if (!response.IsSuccessStatusCode || !result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
+                return AuthResult.Fail(result.ErrorMessage ?? "Autentificare eșuată.");
+
+            _sessionStore.SetSession(new AuthSessionModel
+            {
+                Token = result.Token,
+                UserId = result.User.Id,
+                Email = result.User.Email,
+                DisplayName = result.User.DisplayName,
+                Roles = result.User.Roles
+            });
+
+            _authState.NotifyUserAuthentication();
 
             return AuthResult.Ok();
         }
 
-        public async Task SignOutAsync()
-        {
-            var ctx = _http.HttpContext;
-            if (ctx is null) return;
-
-            await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            _authState.Notify();
-        }
         public async Task<AuthResult> SignUpAsync(string firstName, string lastName, string email, string password, string role)
         {
-            // validare rol strict
-            if (role != "Student" && role != "Teacher")
-                return AuthResult.Fail("Rol invalid.");
-
-            // email unic
-            if (await _users.EmailExistsAsync(email))
-                return AuthResult.Fail("Există deja un cont cu acest email.");
-
-            // creare user
-            var user = new AppUser
+            var request = new RegisterRequestDto
             {
-                Id = Guid.NewGuid(),
-                Email = email.Trim(),
-                FirstName = firstName.Trim(),
-                LastName = lastName.Trim(),
-                PasswordHash = PasswordHasher.Hash(password),
-                Roles = new[] { role }
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                Password = password,
+                Role = role
             };
 
-            await _users.CreateAsync(user);
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
+            var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
 
-            // autologin după înregistrare
-            return await SignInAsync(email, password, rememberMe: true);
+            if (result is null)
+                return AuthResult.Fail("Răspuns invalid de la server.");
+
+            if (!response.IsSuccessStatusCode || !result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
+                return AuthResult.Fail(result.ErrorMessage ?? "Înregistrare eșuată.");
+
+            _sessionStore.SetSession(new AuthSessionModel
+            {
+                Token = result.Token,
+                UserId = result.User.Id,
+                Email = result.User.Email,
+                DisplayName = result.User.DisplayName,
+                Roles = result.User.Roles
+            });
+
+            _authState.NotifyUserAuthentication();
+
+            return AuthResult.Ok();
+        }
+
+        public Task SignOutAsync()
+        {
+            _sessionStore.Clear();
+            _authState.NotifyUserLogout();
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,18 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SimilarityChecker.UI.Authentication;
 using SimilarityChecker.UI.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SimilarityChecker.UI
 {
@@ -33,34 +28,33 @@ namespace SimilarityChecker.UI
             services.AddServerSideBlazor();
             services.AddControllers();
 
-            // Cookie auth
-            services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/login";
-                    options.LogoutPath = "/logout";
-                    options.AccessDeniedPath = "/access-denied";
-                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
-                    options.SlidingExpiration = true;
-                });
-
             services.AddAuthorization();
             services.AddHttpContextAccessor();
 
-            // Auth
-            services.AddScoped<CustomAuthStateProvider>();
-            services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddSingleton<IUserStore, InMemoryUserStore>();
+            services.AddScoped<AuthSessionStore>();
 
-            // API clients (typed HttpClient)
+            services.AddScoped<CustomAuthStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(sp =>
+                sp.GetRequiredService<CustomAuthStateProvider>());
+
             var apiBase = Configuration["ApiBaseUrl"] ?? "https://localhost:7260/";
+
+            services.AddHttpClient<IAuthService, AuthService>(client =>
+            {
+                client.BaseAddress = new Uri(apiBase);
+            });
+
             services.AddHttpClient<IDocumentScanApiClient, DocumentScanApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBase);
             });
+
             services.AddHttpClient<IPlagiarismApiClient, PlagiarismApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(apiBase);
+            });
+
+            services.AddHttpClient<IProfileApiClient, ProfileApiClient>(client =>
             {
                 client.BaseAddress = new Uri(apiBase);
             });

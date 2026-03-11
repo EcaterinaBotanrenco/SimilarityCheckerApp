@@ -229,7 +229,6 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\rjimswa.dswa.cache.json
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
-D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\scopedcss\Pages\PlagiarismCheck.razor.rz.scp.css
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\scopedcss\Shared\MainLayout.razor.rz.scp.css
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\scopedcss\Shared\NavMenu.razor.rz.scp.css
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\scopedcss\bundle\SimilarityChecker.UI.styles.css
@@ -245,3 +244,13 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.genruntimeconfig.cache
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\ref\SimilarityChecker.UI.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Authorization.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Components.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Forms.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Web.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Metadata.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.JSInterop.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Solutaris.InfoWARE.ProtectedBrowserStorage.dll

@@ -1,0 +1,41 @@
+﻿<h3>LoginRequiredModal</h3>
+@inject NavigationManager Nav
+
+@if (Visible)
+{
+    <div class="login-modal-backdrop">
+        <div class="login-modal-box">
+            <button class="login-modal-close" @onclick="OnCloseClicked">×</button>
+
+            <h2>Autentifică-te sau creează un cont</h2>
+            <p>
+                Pentru a putea porni scanarea documentului, trebuie să fii autentificat.
+            </p>
+
+            <div class="login-modal-actions">
+                <button class="btn btn-primary" @onclick="GoToLogin">Autentificare</button>
+                <button class="btn btn-outline-primary" @onclick="GoToSignup">Creare cont</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task OnCloseClicked()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private void GoToLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private void GoToSignup()
+    {
+        Nav.NavigateTo("/signup");
+    }
+}

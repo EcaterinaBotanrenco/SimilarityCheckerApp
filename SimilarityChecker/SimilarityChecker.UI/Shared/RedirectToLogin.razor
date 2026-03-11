@@ -1,10 +1,42 @@
-﻿<h3>RedirectToLogin</h3>
-@inject NavigationManager Nav
+﻿@inject NavigationManager Nav
+
+@if (Visible)
+{
+    <div class="login-modal-backdrop">
+        <div class="login-modal-box">
+            <button class="login-modal-close" @onclick="OnCloseClicked">×</button>
+
+            <h2>Autentifică-te sau creează un cont</h2>
+            <p>
+                Pentru a porni scanarea documentului, trebuie să fii autentificat.
+            </p>
+
+            <div class="login-modal-actions">
+                <button class="btn btn-primary" @onclick="GoToLogin">Autentificare</button>
+                <button class="btn btn-outline-primary" @onclick="GoToSignup">Creare cont</button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
-    protected override void OnInitialized()
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task OnCloseClicked()
     {
-        var returnUrl = Uri.EscapeDataString(Nav.ToBaseRelativePath(Nav.Uri));
-        Nav.NavigateTo($"/login?returnUrl={returnUrl}", forceLoad: true);
+        await OnClose.InvokeAsync();
+    }
+
+    private void GoToLogin()
+    {
+        var returnUrl = Uri.EscapeDataString("/internal-scan");
+        Nav.NavigateTo($"/login?returnUrl={returnUrl}");
+    }
+
+    private void GoToSignup()
+    {
+        var returnUrl = Uri.EscapeDataString("/internal-scan");
+        Nav.NavigateTo($"/signup?returnUrl={returnUrl}");
     }
 }

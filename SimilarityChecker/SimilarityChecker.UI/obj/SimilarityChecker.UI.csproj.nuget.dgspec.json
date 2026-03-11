@@ -141,6 +141,10 @@
               "target": "Package",
               "version": "[2026.2.0, )"
             },
+            "Solutaris.InfoWARE.ProtectedBrowserStorage": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
             "Ude.NetStandard": {
               "target": "Package",
               "version": "[1.2.0, )"

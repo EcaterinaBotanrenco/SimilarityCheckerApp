@@ -2,18 +2,10 @@
 using QuestPDF.Helpers;
 using SimilarityChecker.Api.Models;
 using SimilarityChecker.Api.Services.InternalScan;
-using SimilarityChecker.Shared.Dto;
-using System.Reflection.Metadata;
-using Microsoft.AspNetCore.Mvc;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using SimilarityChecker.Shared.Dtos;
-using System.Text;
-using Document = System.Reflection.Metadata.Document;
 using InternalScanReportDto = SimilarityChecker.Shared.Dto.InternalScanReportDto;
 using FragmentTypeDto = SimilarityChecker.Shared.Dto.FragmentTypeDto;
-using InternalScanFragmentDto = SimilarityChecker.Shared.Dtos.InternalScanFragmentDto;
 
 namespace SimilarityChecker.Api.Controllers;
 

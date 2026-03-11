@@ -6,11 +6,14 @@ public sealed class DocumentEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    public Guid UserId { get; set; }
+    public AppUserEntity User { get; set; } = null!;
+
     [MaxLength(260)]
     public string FileName { get; set; } = string.Empty;
 
     [MaxLength(20)]
-    public string FileType { get; set; } = string.Empty; // pdf/docx/txt
+    public string FileType { get; set; } = string.Empty;
 
     [MaxLength(64)]
     public string Sha256 { get; set; } = string.Empty;
@@ -24,7 +27,6 @@ public sealed class DocumentEntity
 
     public string ExtractedText { get; set; } = string.Empty;
 
-    // Navigații
     public List<SearchQueryEntity> SearchQueries { get; set; } = new();
     public List<MatchEntity> Matches { get; set; } = new();
     public List<ReportEntity> Reports { get; set; } = new();

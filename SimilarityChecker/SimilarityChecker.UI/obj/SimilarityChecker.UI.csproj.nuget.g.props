@@ -13,4 +13,7 @@
     <SourceRoot Include="C:\Users\cbotn\.nuget\packages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
   </ItemGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)solutaris.infoware.protectedbrowserstorage\1.0.2\buildTransitive\Solutaris.InfoWARE.ProtectedBrowserStorage.props" Condition="Exists('$(NuGetPackageRoot)solutaris.infoware.protectedbrowserstorage\1.0.2\buildTransitive\Solutaris.InfoWARE.ProtectedBrowserStorage.props')" />
+  </ImportGroup>
 </Project>

@@ -24,6 +24,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Component.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -36,8 +40,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/SignUp.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2lnblVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Shared/LoginRequiredModal.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luUmVxdWlyZWRNb2RhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Shared/RedirectToLogin.razor]
@@ -51,10 +63,6 @@ build_metadata.AdditionalFiles.CssScope =
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
-
-[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/PlagiarismCheck.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxhZ2lhcmlzbUNoZWNrLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-hr3rzfa5zt
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Shared/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
