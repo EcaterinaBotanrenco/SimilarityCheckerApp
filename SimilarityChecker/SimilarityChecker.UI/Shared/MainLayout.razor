@@ -2,18 +2,25 @@
 
 <HeadOutlet />
 
-<div class="page">
-    <div class="sidebar">
+<div class="app-shell">
+    <aside class="app-sidebar">
         <NavMenu />
-    </div>
+    </aside>
 
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+    <div class="app-main">
+        <header class="app-topbar">
+            <div>
+                <div class="app-topbar-title">SimilarityChecker</div>
+                <div class="app-topbar-subtitle">Platformă pentru verificarea similitudinii documentelor</div>
+            </div>
 
-        <div class="content px-4">
+            <NavLink href="" class="topbar-link" Match="NavLinkMatch.All">
+                Acasă
+            </NavLink>
+        </header>
+
+        <main class="app-content">
             @Body
-        </div>
+        </main>
     </div>
 </div>

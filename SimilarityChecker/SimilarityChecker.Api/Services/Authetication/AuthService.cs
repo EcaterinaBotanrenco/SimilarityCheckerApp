@@ -3,6 +3,8 @@ using SimilarityChecker.Api.Data;
 using SimilarityChecker.Api.Data.Entities;
 using SimilarityChecker.Api.Services.Auth;
 using SimilarityChecker.Shared.Dtos;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SimilarityChecker.Api.Services
 {
@@ -72,6 +74,50 @@ namespace SimilarityChecker.Api.Services
             };
         }
 
+        public async Task ForgotPasswordAsync(ForgotPasswordRequestDto request)
+        {
+            Console.WriteLine("AM INTRAT IN ForgotPasswordAsync");
+
+            var email = request.Email.Trim().ToLower();
+
+            var user = await _db.AppUsers.FirstOrDefaultAsync(x => x.Email == email);
+
+            // Nu divulgăm dacă utilizatorul există sau nu
+            if (user is null)
+                return;
+
+            var rawToken = GenerateSecureToken();
+            var tokenHash = ComputeSha256(rawToken);
+
+            var oldTokens = await _db.PasswordResetTokens
+                .Where(x => x.UserId == user.Id && !x.IsUsed && x.ExpiresAtUtc > DateTime.UtcNow)
+                .ToListAsync();
+
+            foreach (var oldToken in oldTokens)
+            {
+                oldToken.IsUsed = true;
+            }
+
+            var resetToken = new PasswordResetTokenEntity
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                TokenHash = tokenHash,
+                ExpiresAtUtc = DateTime.UtcNow.AddHours(1),
+                IsUsed = false,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+
+            _db.PasswordResetTokens.Add(resetToken);
+            await _db.SaveChangesAsync();
+
+            var resetUrl = $"https://localhost:44375/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(rawToken)}";
+
+            Console.WriteLine("===== RESET PASSWORD LINK =====");
+            Console.WriteLine(resetUrl);
+            Console.WriteLine("================================");
+        }
+
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
             var email = request.Email.Trim().ToLower();
@@ -113,6 +159,20 @@ namespace SimilarityChecker.Api.Services
                     Roles = user.RolesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 }
             };
+        }
+        private static string GenerateSecureToken()
+        {
+            var bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes)
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
+        }
+
+        private static string ComputeSha256(string input)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+            return Convert.ToHexString(bytes);
         }
     }
 }

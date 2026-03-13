@@ -243,7 +243,6 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.pdb
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\SimilarityChecker.UI.genruntimeconfig.cache
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\ref\SimilarityChecker.UI.dll
-D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Authorization.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Components.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Forms.dll
@@ -254,3 +253,4 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.JSInterop.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Solutaris.InfoWARE.ProtectedBrowserStorage.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

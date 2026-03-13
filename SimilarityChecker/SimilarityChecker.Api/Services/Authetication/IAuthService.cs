@@ -6,5 +6,7 @@ namespace SimilarityChecker.Api.Services
     {
         Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
         Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+        Task ForgotPasswordAsync(ForgotPasswordRequestDto request);
+
     }
 }

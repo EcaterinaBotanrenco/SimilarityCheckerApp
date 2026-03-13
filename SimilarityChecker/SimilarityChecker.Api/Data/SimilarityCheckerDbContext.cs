@@ -17,6 +17,7 @@ public sealed class SimilarityCheckerDbContext : DbContext
     public DbSet<SearchResultEntity> SearchResults => Set<SearchResultEntity>();
     public DbSet<MatchEntity> Matches => Set<MatchEntity>();
     public DbSet<ReportEntity> Reports => Set<ReportEntity>();
+    public DbSet<PasswordResetTokenEntity> PasswordResetTokens => Set<PasswordResetTokenEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -86,5 +87,20 @@ public sealed class SimilarityCheckerDbContext : DbContext
             .WithMany()
             .HasForeignKey(x => x.ComparedDocumentId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<PasswordResetTokenEntity>()
+            .ToTable("PasswordResetTokens");
+
+        modelBuilder.Entity<PasswordResetTokenEntity>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.PasswordResetTokens)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PasswordResetTokenEntity>()
+            .HasIndex(x => x.UserId);
+
+        modelBuilder.Entity<PasswordResetTokenEntity>()
+            .HasIndex(x => x.ExpiresAtUtc);
     }
 }

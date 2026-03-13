@@ -1,0 +1,193 @@
+﻿@page "/signup"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using SimilarityChecker.UI.Authentication
+@inject IAuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Creare cont</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-badge">Înregistrare utilizator</div>
+        <h1 class="auth-title">Creare cont</h1>
+        <p class="auth-subtitle">
+            Completează formularul pentru a crea un cont nou și a utiliza platforma de scanare.
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-danger mb-4">
+                @_error
+            </div>
+        }
+
+        <EditForm EditContext="_editContext" OnSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="auth-grid-two">
+                <div class="mb-3">
+                    <label class="form-label">Nume</label>
+                    <InputText class="form-control" @bind-Value="_model.LastName" />
+                    <ValidationMessage For="@(() => _model.LastName)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Prenume</label>
+                    <InputText class="form-control" @bind-Value="_model.FirstName" />
+                    <ValidationMessage For="@(() => _model.FirstName)" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText class="form-control" @bind-Value="_model.Email" />
+                <ValidationMessage For="@(() => _model.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Parolă</label>
+
+                <div class="password-field">
+                    <InputText class="form-control"
+                               type="@(_showPassword ? "text" : "password")"
+                               @bind-Value="_model.Password" />
+
+                    <button type="button"
+                            class="password-toggle"
+                            @onclick="TogglePasswordVisibility">
+                        @(_showPassword ? "Ascunde" : "Arată")
+                    </button>
+                </div>
+
+                <ValidationMessage For="@(() => _model.Password)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirmă parola</label>
+
+                <div class="password-field">
+                    <InputText class="form-control"
+                               type="@(_showConfirmPassword ? "text" : "password")"
+                               @bind-Value="_model.ConfirmPassword" />
+
+                    <button type="button"
+                            class="password-toggle"
+                            @onclick="ToggleConfirmPasswordVisibility">
+                        @(_showConfirmPassword ? "Ascunde" : "Arată")
+                    </button>
+                </div>
+
+                <ValidationMessage For="@(() => _model.ConfirmPassword)" />
+
+                @if (_submitAttempted && _model.Password != _model.ConfirmPassword)
+                {
+                    <div class="validation-message">
+                        Reintroduceți parola, parolele nu coincid.
+                    </div>
+                }
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Rol</label>
+                <InputSelect class="form-select" @bind-Value="_model.Role">
+                    <option value="">-- alege rolul --</option>
+                    <option value="Student">Student</option>
+                    <option value="Teacher">Profesor</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => _model.Role)" />
+            </div>
+
+            <div class="auth-actions">
+                <button class="btn btn-success" type="submit" disabled="@_busy">
+                    @(_busy ? "Se creează..." : "Creează cont")
+                </button>
+
+                <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/login")'>
+                    Ai deja cont? Autentifică-te
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private SignupModel _model = new();
+    private EditContext? _editContext;
+    private string? _error;
+    private bool _busy;
+    private bool _submitAttempted;
+    private bool _showPassword;
+    private bool _showConfirmPassword;
+
+    private void TogglePasswordVisibility()
+    {
+        _showPassword = !_showPassword;
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        _showConfirmPassword = !_showConfirmPassword;
+    }
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_model);
+    }
+
+    private async Task HandleSubmit(EditContext context)
+    {
+        _error = null;
+        _submitAttempted = true;
+
+        var valid = _editContext?.Validate() ?? context.Validate();
+
+        if (!valid)
+            return;
+
+        _busy = true;
+
+        var result = await Auth.SignUpAsync(
+            firstName: _model.FirstName,
+            lastName: _model.LastName,
+            email: _model.Email,
+            password: _model.Password,
+            role: _model.Role);
+
+        _busy = false;
+
+        if (!result.Success)
+        {
+            _error = result.ErrorMessage ?? "Înregistrare eșuată.";
+            return;
+        }
+
+        Nav.NavigateTo("/", forceLoad: false);
+    }
+
+    private sealed class SignupModel
+    {
+        [Required(ErrorMessage = "Numele este obligatoriu.")]
+        [MinLength(2, ErrorMessage = "Numele trebuie să aibă minim 2 caractere.")]
+        public string LastName { get; set; } = "";
+
+        [Required(ErrorMessage = "Prenumele este obligatoriu.")]
+        [MinLength(2, ErrorMessage = "Prenumele trebuie să aibă minim 2 caractere.")]
+        public string FirstName { get; set; } = "";
+
+        [Required(ErrorMessage = "Email-ul este obligatoriu.")]
+        [EmailAddress(ErrorMessage = "Email invalid.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Parola este obligatorie.")]
+        [MinLength(6, ErrorMessage = "Parola trebuie să aibă minim 6 caractere.")]
+        public string Password { get; set; } = "";
+
+        [Required(ErrorMessage = "Confirmarea parolei este obligatorie.")]
+        public string ConfirmPassword { get; set; } = "";
+
+        [Required(ErrorMessage = "Rolul este obligatoriu.")]
+        [RegularExpression("Student|Teacher", ErrorMessage = "Rol invalid.")]
+        public string Role { get; set; } = "";
+    }
+}

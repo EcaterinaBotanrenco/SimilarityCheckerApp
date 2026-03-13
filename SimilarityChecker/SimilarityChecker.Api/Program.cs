@@ -55,6 +55,7 @@ builder.Services.AddSingleton<ITextExtractor, PdfTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();
 builder.Services.AddScoped<IInternalScanService, InternalScanService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddSingleton<IPlagiarismService, PlagiarismService>();
 

@@ -1,0 +1,165 @@
+﻿@page "/profile"
+@attribute [Authorize]
+@using SimilarityChecker.Shared.Dtos
+@using SimilarityChecker.UI.Services
+@using Microsoft.AspNetCore.Authorization
+@inject IProfileApiClient ProfileApiClient
+@inject NavigationManager Nav
+
+<PageTitle>Profilul meu</PageTitle>
+
+@if (_loading)
+{
+    <div class="app-card">
+        <h3 class="card-title">Se încarcă profilul...</h3>
+        <p class="card-subtitle">Așteaptă câteva momente până sunt preluate datele utilizatorului.</p>
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">
+        @_error
+    </div>
+}
+else if (_profile is not null)
+{
+    <div class="page-header">
+        <h1 class="page-title">Profilul meu</h1>
+        <p class="page-subtitle">
+            Aici poți vedea datele contului și istoricul rapoartelor generate în sistem.
+        </p>
+    </div>
+
+    <div class="profile-summary-grid">
+        <div class="profile-stat">
+            <div class="profile-stat-label">Nume complet</div>
+            <div class="profile-stat-value">@_profile.DisplayName</div>
+        </div>
+
+        <div class="profile-stat">
+            <div class="profile-stat-label">Email</div>
+            <div class="profile-stat-value">@_profile.Email</div>
+        </div>
+
+        <div class="profile-stat">
+            <div class="profile-stat-label">Rol</div>
+            <div class="profile-stat-value">@string.Join(", ", _profile.Roles)</div>
+        </div>
+
+        <div class="profile-stat">
+            <div class="profile-stat-label">Număr rapoarte</div>
+            <div class="profile-stat-value">@_profile.Reports.Count</div>
+        </div>
+    </div>
+
+    <div class="app-card mb-4">
+        <h3 class="card-title">Date utilizator</h3>
+        <p class="card-subtitle">Informațiile principale asociate contului autentificat.</p>
+
+        <div class="profile-info-grid">
+            <div class="profile-info-item">
+                <div class="profile-info-label">Nume complet</div>
+                <div class="profile-info-value">@_profile.DisplayName</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Email</div>
+                <div class="profile-info-value">@_profile.Email</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Rol</div>
+                <div class="profile-info-value">@string.Join(", ", _profile.Roles)</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Rapoarte generate</div>
+                <div class="profile-info-value">@_profile.Reports.Count</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-card">
+        <h3 class="card-title">Rapoartele mele</h3>
+        <p class="card-subtitle">Lista documentelor analizate și posibilitatea de descărcare a raportului PDF.</p>
+
+        @if (_profile.Reports.Count == 0)
+        {
+            <div class="alert alert-warning mb-0">
+                Nu există încă rapoarte generate.
+            </div>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Data</th>
+                            <th>Exact</th>
+                            <th>Parafrazat</th>
+                            <th>Raport</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in _profile.Reports)
+                        {
+                            <tr>
+                                <td>@r.FileName</td>
+                                <td>@r.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                                <td>@r.ExactPercent %</td>
+                                <td>@r.ParaphrasePercent %</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => DownloadReport(r.DocumentId)">
+                                        Descarcă PDF
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private UserProfileDto? _profile;
+    private string? _error;
+    private bool _loading = true;
+
+    private void DownloadReport(Guid documentId)
+    {
+        var url = $"https://localhost:7260/api/internal-scan/report/{documentId}/pdf";
+        Nav.NavigateTo(url, forceLoad: true);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _profile = await ProfileApiClient.GetMyProfileAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private static string GetStatusClass(string? status)
+    {
+        if (string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase))
+            return "status-chip status-chip-success";
+
+        if (string.Equals(status, "Processing", StringComparison.OrdinalIgnoreCase))
+            return "status-chip status-chip-warning";
+
+        return "status-chip status-chip-neutral";
+    }
+}

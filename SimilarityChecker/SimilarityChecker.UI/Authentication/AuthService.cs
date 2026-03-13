@@ -1,4 +1,5 @@
 ﻿using SimilarityChecker.Shared.Dtos;
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -84,6 +85,18 @@ namespace SimilarityChecker.UI.Authentication
             _authState.NotifyUserAuthentication();
 
             return AuthResult.Ok();
+        }
+        public async Task RequestPasswordResetAsync(string email)
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                "api/auth/forgot-password",
+                new ForgotPasswordRequestDto { Email = email });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                throw new Exception(errorText);
+            }
         }
 
         public Task SignOutAsync()

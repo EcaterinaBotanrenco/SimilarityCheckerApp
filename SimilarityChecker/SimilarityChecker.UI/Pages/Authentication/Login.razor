@@ -1,0 +1,143 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using SimilarityChecker.UI.Authentication
+@inject IAuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Autentificare</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card auth-card-sm">
+        <div class="auth-badge">Acces în sistem</div>
+        <h1 class="auth-title">Autentificare</h1>
+        <p class="auth-subtitle">
+            Introdu datele contului pentru a accesa profilul tău și rapoartele generate.
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-danger mb-4">
+                @_error
+            </div>
+        }
+
+        <EditForm Model="_model" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText class="form-control" @bind-Value="_model.Email" />
+                <ValidationMessage For="@(() => _model.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Parolă</label>
+
+                <div class="password-field">
+                    <InputText class="form-control"
+                               type="@(_showPassword ? "text" : "password")"
+                               @bind-Value="_model.Password" />
+
+                    <button type="button"
+                            class="password-toggle"
+                            @onclick="TogglePasswordVisibility">
+                        @(_showPassword ? "Ascunde" : "Arată")
+                    </button>
+                </div>
+
+                <ValidationMessage For="@(() => _model.Password)" />
+            </div>
+
+            <div class="login-options-row">
+                <div class="elemnts-inline ">
+                    <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/forgot-password")'>
+                        Ai uitat parola?
+                    </button>
+                </div>
+                <div class="login-actions-right">
+                    <button class="btn btn-primary" type="submit" disabled="@_busy">
+                        @(_busy ? "Se autentifică..." : "Intră în cont")
+                    </button>
+
+                    <divclass ="login-signup-hint">
+                        <span class="sc-muted">Nu ai cont? </span>
+                        <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/signup")'>
+                            Creează unul
+                        </button>
+                    </divclass>
+                </div>
+            </div>
+
+            
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoginModel _model = new();
+    private string? _error;
+    private bool _busy;
+    private string? _returnUrl;
+
+    protected override void OnInitialized()
+    {
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)
+            .TryGetValue("returnUrl", out var rv))
+        {
+            _returnUrl = rv.ToString();
+        }
+    }
+    private bool _showPassword;
+
+    private void TogglePasswordVisibility()
+    {
+        _showPassword = !_showPassword;
+    }
+
+    private async Task HandleLogin()
+    {
+        _error = null;
+        _busy = true;
+
+        try
+        {
+            var result = await Auth.SignInAsync(_model.Email, _model.Password, _model.RememberMe);
+
+            if (!result.Success)
+            {
+                _error = result.ErrorMessage ?? "Autentificare eșuată.";
+                return;
+            }
+
+            var target = string.IsNullOrWhiteSpace(_returnUrl)
+                ? "/"
+                : (_returnUrl.StartsWith("/") ? _returnUrl : "/" + _returnUrl);
+
+            Nav.NavigateTo(target, forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private sealed class LoginModel
+    {
+        [Required(ErrorMessage = "Email-ul este obligatoriu.")]
+        [EmailAddress(ErrorMessage = "Email invalid.")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Parola este obligatorie.")]
+        [MinLength(6, ErrorMessage = "Parola trebuie să aibă minim 6 caractere.")]
+        public string Password { get; set; } = "";
+
+        public bool RememberMe { get; set; }
+    }
+}

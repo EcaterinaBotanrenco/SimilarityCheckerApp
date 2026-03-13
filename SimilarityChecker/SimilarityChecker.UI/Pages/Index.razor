@@ -1,7 +1,133 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
 
-<h1>Hello, world!</h1>
+<PageTitle>Acasă</PageTitle>
 
-Welcome to your new app.
+<div class="page-header">
+    <h1 class="page-title">SimilarityChecker</h1>
+    <p class="page-subtitle">
+        Platformă pentru verificarea similitudinii documentelor, gestionarea rapoartelor și urmărirea rezultatelor într-o interfață clară și modernă.
+    </p>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<div class="home-hero-card">
+    <div class="home-hero-content">
+        <div class="home-hero-badge">Verificare academică</div>
+        <h2 class="home-hero-title">
+            Analizează rapid documentele și generează rapoarte de similitudine
+        </h2>
+        <p class="home-hero-text">
+            Încarcă documente, rulează scanarea internă și consultă rezultatele centralizat în profilul tău.
+            Interfața este gândită pentru studenți și cadre didactice care au nevoie de un flux clar și eficient.
+        </p>
+
+        <div class="home-hero-actions">
+            <button class="btn btn-primary" @onclick="GoToInternalScan">
+                Începe scanarea
+            </button>
+
+            <button class="btn btn-outline-primary" @onclick="GoToProfile">
+                Vezi profilul
+            </button>
+        </div>
+    </div>
+
+    <div class="home-hero-side">
+        <div class="home-stat-card">
+            <div class="home-stat-label">Scanare documente</div>
+            <div class="home-stat-value">PDF / DOCX / TXT</div>
+        </div>
+
+        <div class="home-stat-card">
+            <div class="home-stat-label">Tip analiză</div>
+            <div class="home-stat-value">Similitudine internă</div>
+        </div>
+
+        <div class="home-stat-card">
+            <div class="home-stat-label">Rezultat final</div>
+            <div class="home-stat-value">Raport PDF</div>
+        </div>
+    </div>
+</div>
+
+<div class="home-feature-grid">
+    <div class="app-card">
+        <div class="home-feature-icon">01</div>
+        <h3 class="card-title">Încărcare document</h3>
+        <p class="card-subtitle">
+            Selectezi documentul dorit și îl transmiți sistemului pentru procesare.
+        </p>
+    </div>
+
+    <div class="app-card">
+        <div class="home-feature-icon">02</div>
+        <h3 class="card-title">Analiză automată</h3>
+        <p class="card-subtitle">
+            Sistemul compară documentul încărcat cu documentele existente în baza de date.
+        </p>
+    </div>
+
+    <div class="app-card">
+        <div class="home-feature-icon">03</div>
+        <h3 class="card-title">Raport detaliat</h3>
+        <p class="card-subtitle">
+            Primești procentul de similitudine și poți descărca raportul în format PDF.
+        </p>
+    </div>
+</div>
+
+<div class="home-info-grid">
+    <div class="app-card">
+        <h3 class="card-title">Ce poți face în platformă</h3>
+        <p class="card-subtitle">
+            Funcționalitățile principale disponibile utilizatorului autentificat.
+        </p>
+
+        <ul class="home-list">
+            <li>autentificare și creare cont;</li>
+            <li>încărcare documente pentru analiză;</li>
+            <li>scanare internă a similitudinii;</li>
+            <li>vizualizare istoric rapoarte;</li>
+            <li>descărcare raport PDF.</li>
+        </ul>
+    </div>
+
+    <div class="app-card">
+        <h3 class="card-title">Acces rapid</h3>
+        <p class="card-subtitle">
+            Navighează direct către zona de care ai nevoie.
+        </p>
+
+        <div class="home-quick-actions">
+            <button class="btn btn-outline-primary" @onclick='() => Nav.NavigateTo("/login")'>
+                Login
+            </button>
+
+            <button class="btn btn-outline-primary" @onclick='() => Nav.NavigateTo("/signup")'>
+                Sign Up
+            </button>
+
+            <button class="btn btn-outline-primary" @onclick='() => Nav.NavigateTo("/internal-scan")'>
+                Scanare internă
+            </button>
+
+            <button class="btn btn-outline-primary" @onclick='() => Nav.NavigateTo("/profile")'>
+                Profilul meu
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void GoToInternalScan()
+    {
+        Nav.NavigateTo("/internal-scan");
+    }
+
+    private void GoToProfile()
+    {
+        Nav.NavigateTo("/profile");
+    }
+}

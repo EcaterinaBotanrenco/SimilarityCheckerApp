@@ -232,6 +232,38 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("OnlineSources");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.PasswordResetTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAtUtc");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokens", (string)null);
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.ReportEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -379,6 +411,17 @@ namespace SimilarityChecker.Api.Migrations
                     b.Navigation("Document");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.PasswordResetTokenEntity", b =>
+                {
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.AppUserEntity", "User")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.ReportEntity", b =>
                 {
                     b.HasOne("SimilarityChecker.Api.Data.Entities.DocumentEntity", "Document")
@@ -423,6 +466,8 @@ namespace SimilarityChecker.Api.Migrations
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.AppUserEntity", b =>
                 {
                     b.Navigation("Documents");
+
+                    b.Navigation("PasswordResetTokens");
 
                     b.Navigation("Reports");
                 });

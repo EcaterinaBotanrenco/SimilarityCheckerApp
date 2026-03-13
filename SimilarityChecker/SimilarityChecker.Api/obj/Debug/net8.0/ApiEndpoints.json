@@ -1,55 +1,19 @@
 [
   {
     "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
-    "Method": "Login",
-    "RelativePath": "api/auth/login",
+    "Method": "ForgotPassword",
+    "RelativePath": "api/auth/forgot-password",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "request",
-        "Type": "SimilarityChecker.Shared.Dtos.LoginRequestDto",
+        "Type": "SimilarityChecker.Shared.Dtos.ForgotPasswordRequestDto",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "SimilarityChecker.Shared.Dtos.AuthResponseDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
-    "Method": "Register",
-    "RelativePath": "api/auth/register",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "SimilarityChecker.Shared.Dtos.RegisterRequestDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "SimilarityChecker.Shared.Dtos.AuthResponseDto",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "SimilarityChecker.Api.Controllers.DocumentsController",
