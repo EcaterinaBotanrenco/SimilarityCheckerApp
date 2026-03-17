@@ -36,6 +36,68 @@
         }
       }
     },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/documents/upload": {
       "post": {
         "tags": [
@@ -124,6 +186,53 @@
         }
       }
     },
+    "/api/internal-scan/compare": {
+      "post": {
+        "tags": [
+          "InternalScan"
+        ],
+        "parameters": [
+          {
+            "name": "primaryDocumentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "referenceDocumentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalScanReportDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/internal-scan/report/{documentId}": {
       "get": {
         "tags": [
@@ -187,58 +296,34 @@
         }
       }
     },
-    "/api/plagiarism/check": {
-      "post": {
+    "/api/internal-scan/report/compare/{primaryDocumentId}/{referenceDocumentId}/pdf": {
+      "get": {
         "tags": [
-          "Plagiarism"
+          "InternalScan"
         ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "MainFile": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "ReferenceFile": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "MainFile": {
-                  "style": "form"
-                },
-                "ReferenceFile": {
-                  "style": "form"
-                }
-              }
+        "parameters": [
+          {
+            "name": "primaryDocumentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "referenceDocumentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlagiarismCheckResponse"
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
@@ -467,54 +552,40 @@
         },
         "additionalProperties": false
       },
-      "PlagiarismCheckResponse": {
+      "LoginRequestDto": {
         "type": "object",
         "properties": {
-          "runId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "result": {
-            "$ref": "#/components/schemas/PlagiarismResultDto"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PlagiarismMatchDto": {
-        "type": "object",
-        "properties": {
-          "sourceName": {
+          "email": {
             "type": "string",
             "nullable": true
           },
-          "similarity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "note": {
+          "password": {
             "type": "string",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "PlagiarismResultDto": {
+      "ResetPasswordRequestDto": {
+        "required": [
+          "email",
+          "newPassword",
+          "token"
+        ],
         "type": "object",
         "properties": {
-          "overallSimilarity": {
-            "type": "integer",
-            "format": "int32"
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
           },
-          "threshold": {
-            "type": "integer",
-            "format": "int32"
+          "token": {
+            "minLength": 1,
+            "type": "string"
           },
-          "matches": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlagiarismMatchDto"
-            },
-            "nullable": true
+          "newPassword": {
+            "minLength": 6,
+            "type": "string"
           }
         },
         "additionalProperties": false

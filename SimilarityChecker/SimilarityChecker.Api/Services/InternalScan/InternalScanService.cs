@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using SimilarityChecker.Api.Data;
 using SimilarityChecker.Api.Data.Entities;
 using SimilarityChecker.Api.Models;
@@ -7,12 +8,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace SimilarityChecker.Api.Services.InternalScan;
-
-public interface IInternalScanService
-{
-    Task<InternalScanStartResponse> StartAsync(Guid documentId, double threshold, CancellationToken ct);
-    Task<InternalScanReportDto?> GetReportAsync(Guid documentId, CancellationToken ct);
-}
 
 public sealed class InternalScanService : IInternalScanService
 {
@@ -112,14 +107,70 @@ public sealed class InternalScanService : IInternalScanService
                     ReferenceSnippet = ex.ReferenceSnippet
                 });
             }
+
+            var paraphrases = InternalSimilarityEngine.FindParaphraseFragments(
+            doc.ExtractedText,
+            refDoc.ExtractedText,
+            minCombinedScore: 0.32,
+            maxExactSimilarity: 0.85,
+            minSharedContentWords: 2);
+
+            foreach (var para in paraphrases)
+            {
+                bool overlapsExact = fragments.Any(f =>
+                    f.Type == FragmentTypeDto.Exact &&
+                    f.ReferenceDocumentId == refDoc.Id &&
+                    RangesOverlap(f.SourceTokenStart, f.SourceTokenEnd, para.SourceTokenStart, para.SourceTokenEnd));
+
+                if (overlapsExact)
+                    continue;
+
+                fragments.Add(new InternalScanFragmentDto
+                {
+                    Type = FragmentTypeDto.Paraphrase,
+                    Score = para.Score,
+                    SourceTokenStart = para.SourceTokenStart,
+                    SourceTokenEnd = para.SourceTokenEnd,
+                    RefTokenStart = para.RefTokenStart,
+                    RefTokenEnd = para.RefTokenEnd,
+                    ReferenceDocumentId = refDoc.Id,
+                    ReferenceFileName = refDoc.FileName,
+                    SourceSnippet = para.SourceSnippet,
+                    ReferenceSnippet = para.ReferenceSnippet
+                });
+            }
         }
 
         // ===== NOU: Procente tri-color =====
         var sourceTokenCount = CountTokens(doc.ExtractedText);
-        var exactCovered = EstimateCoveredTokens(fragments.Where(f => f.Type == FragmentTypeDto.Exact));
 
-        int exactPercent = sourceTokenCount == 0 ? 0 : (int)Math.Round(100.0 * exactCovered / sourceTokenCount);
-        int paraphrasePercent = 0; // va fi completat când adăugăm TF-IDF + Cosine
+        var exactCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Exact));
+
+        var paraphraseCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Paraphrase));
+
+        int exactPercent = 0;
+        if (sourceTokenCount > 0 && exactCovered > 0)
+        {
+            exactPercent = (int)Math.Round(100.0 * exactCovered / sourceTokenCount);
+            if (exactPercent == 0)
+                exactPercent = 1;
+        }
+
+        int paraphrasePercent = 0;
+        if (sourceTokenCount > 0 && paraphraseCovered > 0)
+        {
+            paraphrasePercent = (int)Math.Round(100.0 * paraphraseCovered / sourceTokenCount);
+            if (paraphrasePercent == 0)
+                paraphrasePercent = 1;
+        }
+
+        if (exactPercent + paraphrasePercent > 100)
+        {
+            paraphrasePercent = Math.Max(0, 100 - exactPercent);
+        }
+
         int cleanPercent = Math.Max(0, 100 - exactPercent - paraphrasePercent);
 
         var reportDto = new InternalScanReportDto
@@ -148,6 +199,7 @@ public sealed class InternalScanService : IInternalScanService
 
         // update ReportId în JSON
         reportDto.ReportId = report.Id;
+        report.ReportJson = JsonSerializer.Serialize(reportDto);
         report.ReportJson = JsonSerializer.Serialize(reportDto);
         await _db.SaveChangesAsync(ct);
 
@@ -181,7 +233,7 @@ public sealed class InternalScanService : IInternalScanService
         var cleaned = Regex.Replace(text.ToLowerInvariant(), @"[^\p{L}\p{N}\s]+", " ");
         return Regex.Matches(cleaned, @"\S+").Count;
     }
-
+    
     private static int EstimateCoveredTokens(IEnumerable<InternalScanFragmentDto> frags)
     {
         var intervals = frags
@@ -209,5 +261,162 @@ public sealed class InternalScanService : IInternalScanService
 
         covered += (curE - curS);
         return covered;
+    }
+    private static bool RangesOverlap(int aStart, int aEnd, int bStart, int bEnd)
+    {
+        return aStart < bEnd && bStart < aEnd;
+    }
+
+    public async Task<InternalScanReportDto> CompareTwoDocumentsAsync(
+    Guid primaryDocumentId,
+    Guid referenceDocumentId,
+    double threshold,
+    CancellationToken ct = default)
+    {
+        if (primaryDocumentId == referenceDocumentId)
+            throw new InvalidOperationException("Documentul analizat și documentul de referință nu pot fi identice.");
+
+        var primaryDocument = await _db.Documents
+            .FirstOrDefaultAsync(x => x.Id == primaryDocumentId, ct);
+
+        if (primaryDocument is null)
+            throw new InvalidOperationException("Documentul analizat nu a fost găsit.");
+
+        var referenceDocument = await _db.Documents
+            .FirstOrDefaultAsync(x => x.Id == referenceDocumentId, ct);
+
+        if (referenceDocument is null)
+            throw new InvalidOperationException("Documentul de referință nu a fost găsit.");
+
+        var primaryText = primaryDocument.ExtractedText ?? "";
+        var referenceText = referenceDocument.ExtractedText ?? "";
+
+        if (string.IsNullOrWhiteSpace(primaryText))
+            throw new InvalidOperationException("Documentul analizat nu conține text procesabil.");
+
+        if (string.IsNullOrWhiteSpace(referenceText))
+            throw new InvalidOperationException("Documentul de referință nu conține text procesabil.");
+
+        double similarityScore;
+
+        if (!string.IsNullOrWhiteSpace(primaryDocument.Sha256) &&
+            primaryDocument.Sha256 == referenceDocument.Sha256)
+        {
+            similarityScore = 1.0;
+        }
+        else
+        {
+            similarityScore = InternalSimilarityEngine.ComputeSimilarity(primaryText, referenceText);
+        }
+
+        var fragments = new List<InternalScanFragmentDto>();
+
+        var exacts = InternalSimilarityEngine.FindExactFragments(
+            primaryText,
+            referenceText,
+            minConsecutiveShingles: 3);
+
+        foreach (var ex in exacts)
+        {
+            fragments.Add(new InternalScanFragmentDto
+            {
+                Type = FragmentTypeDto.Exact,
+                Score = ex.Score,
+                SourceTokenStart = ex.SourceTokenStart,
+                SourceTokenEnd = ex.SourceTokenEnd,
+                RefTokenStart = ex.RefTokenStart,
+                RefTokenEnd = ex.RefTokenEnd,
+                ReferenceDocumentId = referenceDocument.Id,
+                ReferenceFileName = referenceDocument.FileName,
+                SourceSnippet = ex.SourceSnippet,
+                ReferenceSnippet = ex.ReferenceSnippet
+            });
+        }
+
+        var paraphrases = InternalSimilarityEngine.FindParaphraseFragments(
+        primaryText,
+        referenceText,
+        minCombinedScore: 0.32,
+        maxExactSimilarity: 0.85,
+        minSharedContentWords: 2);
+
+        foreach (var para in paraphrases)
+        {
+            bool overlapsExact = fragments.Any(f =>
+                f.Type == FragmentTypeDto.Exact &&
+                RangesOverlap(f.SourceTokenStart, f.SourceTokenEnd, para.SourceTokenStart, para.SourceTokenEnd));
+
+            if (overlapsExact)
+                continue;
+
+            fragments.Add(new InternalScanFragmentDto
+            {
+                Type = FragmentTypeDto.Paraphrase,
+                Score = para.Score,
+                SourceTokenStart = para.SourceTokenStart,
+                SourceTokenEnd = para.SourceTokenEnd,
+                RefTokenStart = para.RefTokenStart,
+                RefTokenEnd = para.RefTokenEnd,
+                ReferenceDocumentId = referenceDocument.Id,
+                ReferenceFileName = referenceDocument.FileName,
+                SourceSnippet = para.SourceSnippet,
+                ReferenceSnippet = para.ReferenceSnippet
+            });
+        }
+
+        var sourceTokenCount = CountTokens(primaryText);
+
+        var exactCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Exact));
+
+        var paraphraseCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Paraphrase));
+
+        int exactPercent = 0;
+        if (sourceTokenCount > 0 && exactCovered > 0)
+        {
+            exactPercent = (int)Math.Round(100.0 * exactCovered / sourceTokenCount);
+            if (exactPercent == 0)
+                exactPercent = 1;
+        }
+
+        int paraphrasePercent = 0;
+        if (sourceTokenCount > 0 && paraphraseCovered > 0)
+        {
+            paraphrasePercent = (int)Math.Round(100.0 * paraphraseCovered / sourceTokenCount);
+            if (paraphrasePercent == 0)
+                paraphrasePercent = 1;
+        }
+
+        if (exactPercent + paraphrasePercent > 100)
+        {
+            paraphrasePercent = Math.Max(0, 100 - exactPercent);
+        }
+
+        int cleanPercent = Math.Max(0, 100 - exactPercent - paraphrasePercent);
+
+        var report = new InternalScanReportDto
+        {
+            ReportId = Guid.Empty,
+            DocumentId = primaryDocumentId,
+            GeneratedAtUtc = DateTime.UtcNow,
+            ExactPercent = exactPercent,
+            ParaphrasePercent = paraphrasePercent,
+            CleanPercent = cleanPercent,
+            Hits = similarityScore >= threshold
+                ? new List<InternalScanHitDto>
+                {
+                new InternalScanHitDto
+                {
+                    ComparedDocumentId = referenceDocument.Id,
+                    ComparedFileName = referenceDocument.FileName,
+                    SimilarityScore = similarityScore
+                }
+                }
+                : new List<InternalScanHitDto>(),
+            Fragments = fragments
+        };
+
+        return report;
     }
 }

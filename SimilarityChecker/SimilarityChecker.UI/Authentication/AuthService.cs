@@ -31,12 +31,39 @@ namespace SimilarityChecker.UI.Authentication
             };
 
             var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
-            var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (string.IsNullOrWhiteSpace(content))
+                    return AuthResult.Fail("Serverul a întors un răspuns gol.");
+
+                return AuthResult.Fail(content);
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+                return AuthResult.Fail("Răspuns gol de la server.");
+
+            AuthResponseDto? result;
+
+            try
+            {
+                result = System.Text.Json.JsonSerializer.Deserialize<AuthResponseDto>(
+                    content,
+                    new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+            catch
+            {
+                return AuthResult.Fail("Răspuns invalid de la server.");
+            }
 
             if (result is null)
                 return AuthResult.Fail("Răspuns invalid de la server.");
 
-            if (!response.IsSuccessStatusCode || !result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
+            if (!result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
                 return AuthResult.Fail(result.ErrorMessage ?? "Autentificare eșuată.");
 
             _sessionStore.SetSession(new AuthSessionModel
@@ -65,12 +92,39 @@ namespace SimilarityChecker.UI.Authentication
             };
 
             var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
-            var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (string.IsNullOrWhiteSpace(content))
+                    return AuthResult.Fail("Serverul a întors un răspuns gol.");
+
+                return AuthResult.Fail(content);
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+                return AuthResult.Fail("Răspuns gol de la server.");
+
+            AuthResponseDto? result;
+
+            try
+            {
+                result = System.Text.Json.JsonSerializer.Deserialize<AuthResponseDto>(
+                    content,
+                    new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+            catch
+            {
+                return AuthResult.Fail("Răspuns invalid de la server.");
+            }
 
             if (result is null)
                 return AuthResult.Fail("Răspuns invalid de la server.");
 
-            if (!response.IsSuccessStatusCode || !result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
+            if (!result.Success || result.User is null || string.IsNullOrWhiteSpace(result.Token))
                 return AuthResult.Fail(result.ErrorMessage ?? "Înregistrare eșuată.");
 
             _sessionStore.SetSession(new AuthSessionModel
@@ -91,6 +145,23 @@ namespace SimilarityChecker.UI.Authentication
             var response = await _httpClient.PostAsJsonAsync(
                 "api/auth/forgot-password",
                 new ForgotPasswordRequestDto { Email = email });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                throw new Exception(errorText);
+            }
+        }
+        public async Task ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var response = await _httpClient.PostAsJsonAsync(
+                "api/auth/reset-password",
+                new ResetPasswordRequestDto
+                {
+                    Email = email,
+                    Token = token,
+                    NewPassword = newPassword
+                });
 
             if (!response.IsSuccessStatusCode)
             {

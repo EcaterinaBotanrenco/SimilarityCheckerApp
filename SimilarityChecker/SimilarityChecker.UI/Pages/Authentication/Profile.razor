@@ -3,6 +3,7 @@
 @using SimilarityChecker.Shared.Dtos
 @using SimilarityChecker.UI.Services
 @using Microsoft.AspNetCore.Authorization
+@using System.IO
 @inject IProfileApiClient ProfileApiClient
 @inject NavigationManager Nav
 
@@ -23,6 +24,10 @@ else if (!string.IsNullOrWhiteSpace(_error))
 }
 else if (_profile is not null)
 {
+    var latestReport = _profile.Reports
+        .OrderByDescending(x => x.GeneratedAtUtc)
+        .FirstOrDefault();
+
     <div class="page-header">
         <h1 class="page-title">Profilul meu</h1>
         <p class="page-subtitle">
@@ -53,30 +58,44 @@ else if (_profile is not null)
     </div>
 
     <div class="app-card mb-4">
-        <h3 class="card-title">Date utilizator</h3>
-        <p class="card-subtitle">Informațiile principale asociate contului autentificat.</p>
+        <h3 class="card-title">Activitate recentă</h3>
+        <p class="card-subtitle">Rezumatul ultimei activități realizate în sistem.</p>
 
-        <div class="profile-info-grid">
-            <div class="profile-info-item">
-                <div class="profile-info-label">Nume complet</div>
-                <div class="profile-info-value">@_profile.DisplayName</div>
+        @if (latestReport is null)
+        {
+            <div class="alert alert-warning mb-0">
+                Nu există încă activitate înregistrată.
             </div>
+        }
+        else
+        {
+            <div class="profile-info-grid">
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Ultimul document analizat</div>
+                    <div class="profile-info-value">@latestReport.FileName</div>
+                </div>
 
-            <div class="profile-info-item">
-                <div class="profile-info-label">Email</div>
-                <div class="profile-info-value">@_profile.Email</div>
-            </div>
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Data ultimului raport</div>
+                    <div class="profile-info-value">@latestReport.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                </div>
 
-            <div class="profile-info-item">
-                <div class="profile-info-label">Rol</div>
-                <div class="profile-info-value">@string.Join(", ", _profile.Roles)</div>
-            </div>
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Tip fișier</div>
+                    <div class="profile-info-value">@GetFileExtension(latestReport.FileName)</div>
+                </div>
 
-            <div class="profile-info-item">
-                <div class="profile-info-label">Rapoarte generate</div>
-                <div class="profile-info-value">@_profile.Reports.Count</div>
+                <div class="profile-info-item">
+                    <div class="profile-info-label">Acțiune rapidă</div>
+                    <div class="profile-info-value">
+                        <button class="btn btn-sm btn-primary"
+                                @onclick="GoToInternalScan">
+                            Scanează document nou
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+        }
     </div>
 
     <div class="app-card">
@@ -97,19 +116,15 @@ else if (_profile is not null)
                         <tr>
                             <th>Document</th>
                             <th>Data</th>
-                            <th>Exact</th>
-                            <th>Parafrazat</th>
                             <th>Raport</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var r in _profile.Reports)
+                        @foreach (var r in _profile.Reports.OrderByDescending(x => x.GeneratedAtUtc))
                         {
                             <tr>
                                 <td>@r.FileName</td>
                                 <td>@r.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                                <td>@r.ExactPercent %</td>
-                                <td>@r.ParaphrasePercent %</td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary"
                                             @onclick="() => DownloadReport(r.DocumentId)">
@@ -136,6 +151,20 @@ else if (_profile is not null)
         Nav.NavigateTo(url, forceLoad: true);
     }
 
+    private void GoToInternalScan()
+    {
+        Nav.NavigateTo("/internal-scan");
+    }
+
+    private static string GetFileExtension(string? fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName) || !fileName.Contains('.'))
+            return "Necunoscut";
+
+        var ext = Path.GetExtension(fileName)?.TrimStart('.').ToUpperInvariant();
+        return string.IsNullOrWhiteSpace(ext) ? "Necunoscut" : ext;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -150,16 +179,5 @@ else if (_profile is not null)
         {
             _loading = false;
         }
-    }
-
-    private static string GetStatusClass(string? status)
-    {
-        if (string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase))
-            return "status-chip status-chip-success";
-
-        if (string.Equals(status, "Processing", StringComparison.OrdinalIgnoreCase))
-            return "status-chip status-chip-warning";
-
-        return "status-chip status-chip-neutral";
     }
 }

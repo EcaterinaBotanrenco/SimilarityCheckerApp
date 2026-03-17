@@ -75,5 +75,20 @@ namespace SimilarityChecker.UI.Services
             var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (report).");
         }
+
+        public async Task<InternalScanReportDto> CompareTwoDocumentsAsync(Guid primaryDocumentId, Guid referenceDocumentId, CancellationToken ct = default)
+        {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"api/internal-scan/compare?primaryDocumentId={primaryDocumentId}&referenceDocumentId={referenceDocumentId}");
+
+            AddAuthorizationHeader(request);
+
+            var response = await _http.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
+
+            var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (compare documents).");
+        }
     }
 }

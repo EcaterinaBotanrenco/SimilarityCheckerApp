@@ -9,6 +9,7 @@ using SimilarityChecker.Api.Services.Plagiarism;
 using SimilarityChecker.Api.Services.TextExtraction;
 using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
+using SimilarityChecker.Api.Services.Email;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +57,10 @@ builder.Services.AddSingleton<ITextExtractor, DocxTextExtractor>();
 builder.Services.AddSingleton<ITextExtractor, TxtTextExtractor>();
 builder.Services.AddScoped<IInternalScanService, InternalScanService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 builder.Services.AddSingleton<IPlagiarismService, PlagiarismService>();
 

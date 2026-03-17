@@ -4,11 +4,13 @@
     "Projects": [
       {
         "Path": "SimilarityChecker.Api\\SimilarityChecker.Api.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "https"
       },
       {
         "Path": "SimilarityChecker.UI\\SimilarityChecker.UI.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "SimilarityChecker.UI"
       }
     ]
   }

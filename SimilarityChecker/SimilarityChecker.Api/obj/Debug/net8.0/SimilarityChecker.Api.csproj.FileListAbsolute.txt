@@ -308,4 +308,9 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\Microsoft.JSInterop.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\Solutaris.InfoWARE.ProtectedBrowserStorage.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\MailKit.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\MimeKit.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

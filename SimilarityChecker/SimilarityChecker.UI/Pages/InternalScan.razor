@@ -10,7 +10,8 @@
 <div class="page-header">
     <h1 class="page-title">Scanare internă</h1>
     <p class="page-subtitle">
-        Încarcă un document și verifică similitudinea lui cu documentele existente în baza de date.
+        Încarcă un document și verifică similitudinea lui cu documentele existente în baza de date
+        sau compară direct două documente între ele.
     </p>
 </div>
 
@@ -24,12 +25,34 @@
         <div class="sc-card-header">
             <div>
                 <div class="sc-kicker">Pasul 1</div>
-                <div class="sc-card-title">Încarcă documentul</div>
+                <div class="sc-card-title">Încarcă documentele</div>
             </div>
         </div>
 
+        <div class="mb-3">
+            <button class="btn btn-outline-primary sc-btn"
+                    @onclick="ToggleCompareMode"
+                    disabled="@_busy">
+                @(_compareMode ? "Revino la scanare simplă" : "Compară două documente")
+            </button>
+        </div>
+
         <div class="sc-upload-box">
-            <InputFile OnChange="HandleFileChange" class="form-control" />
+            <label class="form-label fw-semibold">Document analizat</label>
+
+            <div class="sc-file-picker">
+                <label class="sc-file-picker-btn" for="primaryFileInput">
+                    Alege fișierul
+                </label>
+
+                <span class="sc-file-picker-name">
+                    @(_selectedFile?.Name ?? "Nu a fost selectat niciun fișier")
+                </span>
+
+                <InputFile id="primaryFileInput"
+                           OnChange="HandlePrimaryFileChange"
+                           class="sc-hidden-file-input" />
+            </div>
 
             <div class="sc-upload-meta">
                 <span>Formate acceptate: PDF / DOCX / TXT</span>
@@ -46,12 +69,56 @@
             }
         </div>
 
-        @if (_uploadResult is not null)
+        @if (_compareMode)
+        {
+            <div class="sc-upload-box mt-3">
+                <label class="form-label fw-semibold">Document de referință</label>
+
+                <div class="sc-file-picker">
+                    <label class="sc-file-picker-btn" for="referenceFileInput">
+                        Alege fișierul
+                    </label>
+
+                    <span class="sc-file-picker-name">
+                        @(_referenceFile?.Name ?? "Nu a fost selectat niciun fișier")
+                    </span>
+
+                    <InputFile id="referenceFileInput"
+                               OnChange="HandleReferenceFileChange"
+                               class="sc-hidden-file-input" />
+                </div>
+
+                <div class="sc-upload-meta">
+                    <span>Formate acceptate: PDF / DOCX / TXT</span>
+                    <span>Dimensiune maximă: 20 MB</span>
+                </div>
+
+                @if (_referenceFile is not null)
+                {
+                    <div class="sc-file-pill">
+                        <span class="sc-dot"></span>
+                        <strong>@_referenceFile.Name</strong>
+                        <span class="sc-muted">(@FormatSize(_referenceFile.Size))</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (_uploadResult is not null && !_compareMode)
         {
             <div class="sc-success">
                 <div><strong>Încărcare reușită</strong></div>
                 <div class="sc-muted">Fișier: @_uploadResult.FileName</div>
                 <div class="sc-muted">Cuvinte identificate: @_uploadResult.WordCount</div>
+            </div>
+        }
+
+        @if (_compareMode && _primaryUploadResult is not null && _referenceUploadResult is not null)
+        {
+            <div class="sc-success">
+                <div><strong>Ambele documente au fost încărcate cu succes</strong></div>
+                <div class="sc-muted">Document analizat: @_primaryUploadResult.FileName</div>
+                <div class="sc-muted">Document de referință: @_referenceUploadResult.FileName</div>
             </div>
         }
     </section>
@@ -68,19 +135,19 @@
             <div class="sc-col sc-actions">
                 <button class="btn btn-success sc-btn"
                         @onclick="StartScan"
-                        disabled="@(_selectedFile is null || _busy)">
+                        disabled="@(!CanStartScan() || _busy)">
                     @(_busy ? "Se procesează..." : "Începe scanarea")
                 </button>
 
                 <button class="btn btn-outline-secondary sc-btn"
                         @onclick="LoadReport"
-                        disabled="@(_busy || _uploadResult is null)">
+                        disabled="@(_busy || !CanReloadReport())">
                     Reîncarcă raportul
                 </button>
 
                 <button class="btn btn-outline-dark sc-btn"
                         @onclick="DownloadPdf"
-                        disabled="@(_busy || _uploadResult is null || _report is null)">
+                        disabled="@(_busy || !CanDownloadPdf())">
                     Descarcă raportul PDF
                 </button>
             </div>
@@ -93,19 +160,25 @@
             </div>
         }
 
-        @if (_scanStart is not null)
+        @if (_scanStart is not null && !_compareMode)
         {
             <div class="alert alert-info mt-3 mb-0">
                 Scanare finalizată. Documente comparate: <strong>@_scanStart.ComparedDocuments</strong>
             </div>
         }
+
+        @if (_compareMode && _compareReport is not null)
+        {
+            <div class="alert alert-info mt-3 mb-0">
+                Comparația dintre cele două documente a fost finalizată cu succes.
+            </div>
+        }
     </section>
 </div>
 
-@if (_report is not null)
+@if (!_compareMode && _report is not null)
 {
     var overall = GetOverallPercent(_report);
-    var average = GetAveragePercent(_report);
 
     <div class="sc-card mt-4">
         <div class="sc-card-header sc-header-split">
@@ -120,16 +193,27 @@
 
         <div class="sc-summary">
             <div class="sc-donut-wrap">
-                <div class="sc-donut" style="--p:@overall;">
+                <div class="sc-donut tri-donut"
+                     style="@BuildDonutStyle(_report.ExactPercent, _report.ParaphrasePercent)">
                     <div class="sc-donut-center">
                         <div class="sc-donut-value">@overall%</div>
-                        <div class="sc-donut-label">nivel total</div>
+                        <div class="sc-donut-label">conținut plagiat</div>
                     </div>
                 </div>
 
                 <div class="sc-donut-sub">
-                    <div class="sc-muted">Media: <strong>@average%</strong></div>
                     <div class="sc-badge @GetBadgeClass(overall)">@GetBadgeText(overall)</div>
+
+                    <div class="sc-legend mt-2">
+                        <div class="sc-legend-item">
+                            <span class="sc-legend-dot sc-legend-dot-exact"></span>
+                            <span>Exact: <strong>@_report.ExactPercent%</strong></span>
+                        </div>
+                        <div class="sc-legend-item">
+                            <span class="sc-legend-dot sc-legend-dot-para"></span>
+                            <span>Parafrazat: <strong>@_report.ParaphrasePercent%</strong></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -177,17 +261,170 @@
     </div>
 }
 
+@if (_compareMode && _compareReport is not null)
+{
+    var overall = GetOverallPercent(_compareReport);
+    var comparedDocName = _compareReport.Hits.FirstOrDefault()?.ComparedFileName
+        ?? (_referenceUploadResult?.FileName ?? "Document necunoscut");
+
+    <div class="sc-card mt-4">
+        <div class="sc-card-header sc-header-split">
+            <div>
+                <div class="sc-kicker">Rezumat comparație</div>
+                <div class="sc-card-title">Comparare document la document</div>
+            </div>
+            <div class="sc-muted">
+                Generat la: @_compareReport.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
+            </div>
+        </div>
+
+        <div class="sc-summary">
+            <div class="sc-donut-wrap">
+                <div class="sc-donut tri-donut"
+                     style="@BuildDonutStyle(_compareReport.ExactPercent, _compareReport.ParaphrasePercent)">
+                    <div class="sc-donut-center">
+                        <div class="sc-donut-value">@overall%</div>
+                        <div class="sc-donut-label">conținut plagiat</div>
+                    </div>
+                </div>
+
+                <div class="sc-donut-sub">
+                    <div class="sc-badge @GetBadgeClass(overall)">@GetBadgeText(overall)</div>
+
+                    <div class="sc-legend mt-2">
+                        <div class="sc-legend-item">
+                            <span class="sc-legend-dot sc-legend-dot-exact"></span>
+                            <span>Exact: <strong>@_compareReport.ExactPercent%</strong></span>
+                        </div>
+                        <div class="sc-legend-item">
+                            <span class="sc-legend-dot sc-legend-dot-para"></span>
+                            <span>Parafrazat: <strong>@_compareReport.ParaphrasePercent%</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sc-results">
+                <div class="sc-results-title">Informații despre comparație</div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100 bg-light">
+                            <div class="sc-muted mb-1">Document analizat</div>
+                            <div><strong>@(_primaryUploadResult?.FileName ?? _selectedFile?.Name ?? "Necunoscut")</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100 bg-light">
+                            <div class="sc-muted mb-1">Document de referință</div>
+                            <div><strong>@comparedDocName</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="sc-results-title">Rezultatul comparației</div>
+
+                    @if (_compareReport.Hits.Count == 0)
+                    {
+                        <div class="alert alert-warning mb-0">
+                            Nu a fost generat niciun rezultat peste pragul stabilit pentru comparația dintre cele două documente.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Document de referință</th>
+                                        <th style="width: 240px;">Similitudine</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var hit in _compareReport.Hits.OrderByDescending(x => x.SimilarityScore))
+                                    {
+                                        var p = (int)Math.Round(hit.SimilarityScore * 100);
+
+                                        <tr>
+                                            <td>@hit.ComparedFileName</td>
+                                            <td>
+                                                <div class="progress" style="height: 18px; border-radius: 999px;">
+                                                    <div class="progress-bar" role="progressbar" style="width:@p%">
+                                                        @p%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
-    private enum UiPhase { None, Upload, Scan, Report }
+    private enum UiPhase { None, Upload, UploadReference, Scan, Report }
 
     private UiPhase _phase = UiPhase.None;
     private bool _busy;
     private string? _error;
+
+    private bool _compareMode;
+
     private IBrowserFile? _selectedFile;
+    private IBrowserFile? _referenceFile;
+
     private DocumentUploadResponseDto? _uploadResult;
+    private DocumentUploadResponseDto? _primaryUploadResult;
+    private DocumentUploadResponseDto? _referenceUploadResult;
+
     private InternalScanStartResponseDto? _scanStart;
     private InternalScanReportDto? _report;
+    private InternalScanReportDto? _compareReport;
+
     private bool _showLoginModal;
+
+    private void ToggleCompareMode()
+    {
+        _compareMode = !_compareMode;
+        ResetState();
+    }
+
+    private static string BuildDonutStyle(int exactPercent, int paraphrasePercent)
+    {
+        if (exactPercent < 0) exactPercent = 0;
+        if (paraphrasePercent < 0) paraphrasePercent = 0;
+
+        var total = exactPercent + paraphrasePercent;
+        if (total > 100)
+        {
+            var overflow = total - 100;
+
+            if (paraphrasePercent >= overflow)
+                paraphrasePercent -= overflow;
+            else
+            {
+                overflow -= paraphrasePercent;
+                paraphrasePercent = 0;
+                exactPercent = Math.Max(0, exactPercent - overflow);
+            }
+        }
+
+        var exactEnd = exactPercent;
+        var paraEnd = exactPercent + paraphrasePercent;
+
+        return
+            $"background: conic-gradient(" +
+            $"#dc3545 0% {exactEnd}%, " +
+            $"#f59f00 {exactEnd}% {paraEnd}%, " +
+            $"#e9edf3 {paraEnd}% 100%);";
+    }
 
     private async Task StartScan()
     {
@@ -202,7 +439,10 @@
             return;
         }
 
-        await RunScanAsync();
+        if (_compareMode)
+            await RunCompareAsync();
+        else
+            await RunScanAsync();
     }
 
     private async Task RunScanAsync()
@@ -224,6 +464,46 @@
 
             _phase = UiPhase.Report;
             _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+
+            _compareReport = null;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+            _phase = UiPhase.None;
+        }
+    }
+
+    private async Task RunCompareAsync()
+    {
+        if (_selectedFile is null || _referenceFile is null)
+            return;
+
+        try
+        {
+            _busy = true;
+            _error = null;
+
+            _phase = UiPhase.Upload;
+            await using var primaryStream = _selectedFile.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            _primaryUploadResult = await Api.UploadDocumentAsync(primaryStream, _selectedFile.Name);
+
+            _phase = UiPhase.UploadReference;
+            await using var referenceStream = _referenceFile.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+            _referenceUploadResult = await Api.UploadDocumentAsync(referenceStream, _referenceFile.Name);
+
+            _phase = UiPhase.Scan;
+            _compareReport = await Api.CompareTwoDocumentsAsync(
+                _primaryUploadResult.DocumentId,
+                _referenceUploadResult.DocumentId);
+
+            _report = null;
+            _scanStart = null;
+            _uploadResult = null;
         }
         catch (Exception ex)
         {
@@ -242,29 +522,46 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleFileChange(InputFileChangeEventArgs e)
+    private Task HandlePrimaryFileChange(InputFileChangeEventArgs e)
     {
         _error = null;
         _selectedFile = e.File;
-        _uploadResult = null;
-        _scanStart = null;
-        _report = null;
+        ClearResultsOnly();
+        return Task.CompletedTask;
+    }
 
+    private Task HandleReferenceFileChange(InputFileChangeEventArgs e)
+    {
+        _error = null;
+        _referenceFile = e.File;
+        ClearResultsOnly();
         return Task.CompletedTask;
     }
 
     private async Task LoadReport()
     {
-        if (_uploadResult is null)
-            return;
-
         try
         {
             _busy = true;
             _phase = UiPhase.Report;
             _error = null;
 
-            _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+            if (_compareMode)
+            {
+                if (_primaryUploadResult is null || _referenceUploadResult is null)
+                    return;
+
+                _compareReport = await Api.CompareTwoDocumentsAsync(
+                    _primaryUploadResult.DocumentId,
+                    _referenceUploadResult.DocumentId);
+            }
+            else
+            {
+                if (_uploadResult is null)
+                    return;
+
+                _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
+            }
         }
         catch (Exception ex)
         {
@@ -279,18 +576,82 @@
 
     private void DownloadPdf()
     {
+        if (_compareMode)
+        {
+            if (_primaryUploadResult is null || _referenceUploadResult is null)
+                return;
+
+            var url = $"https://localhost:7260/api/internal-scan/report/compare/{_primaryUploadResult.DocumentId}/{_referenceUploadResult.DocumentId}/pdf";
+            Nav.NavigateTo(url, forceLoad: true);
+            return;
+        }
+
         if (_uploadResult is null)
             return;
 
-        var url = $"https://localhost:7260/api/internal-scan/report/{_uploadResult.DocumentId}/pdf";
-        Nav.NavigateTo(url, forceLoad: true);
+        var singleUrl = $"https://localhost:7260/api/internal-scan/report/{_uploadResult.DocumentId}/pdf";
+        Nav.NavigateTo(singleUrl, forceLoad: true);
+    }
+
+    private bool CanStartScan()
+    {
+        if (_compareMode)
+            return _selectedFile is not null && _referenceFile is not null;
+
+        return _selectedFile is not null;
+    }
+
+    private bool CanReloadReport()
+    {
+        if (_compareMode)
+            return _primaryUploadResult is not null && _referenceUploadResult is not null;
+
+        return _uploadResult is not null;
+    }
+
+    private bool CanDownloadPdf()
+    {
+        if (_compareMode)
+            return _primaryUploadResult is not null && _referenceUploadResult is not null && _compareReport is not null;
+
+        return _uploadResult is not null && _report is not null;
+    }
+
+    private void ResetState()
+    {
+        _selectedFile = null;
+        _referenceFile = null;
+        _uploadResult = null;
+        _primaryUploadResult = null;
+        _referenceUploadResult = null;
+        _scanStart = null;
+        _report = null;
+        _compareReport = null;
+        _error = null;
+    }
+
+    private void ClearResultsOnly()
+    {
+        _uploadResult = null;
+        _primaryUploadResult = null;
+        _referenceUploadResult = null;
+        _scanStart = null;
+        _report = null;
+        _compareReport = null;
     }
 
     private static int GetOverallPercent(InternalScanReportDto report)
-        => report.Hits.Count == 0 ? 0 : (int)Math.Round(report.Hits.Max(x => x.SimilarityScore) * 100);
+    {
+        var plagPercent = report.ExactPercent + report.ParaphrasePercent;
 
-    private static int GetAveragePercent(InternalScanReportDto report)
-        => report.Hits.Count == 0 ? 0 : (int)Math.Round(report.Hits.Average(x => x.SimilarityScore) * 100);
+        if (plagPercent > 100)
+            plagPercent = 100;
+
+        if (plagPercent == 0 && report.Fragments is not null && report.Fragments.Count > 0)
+            return 1;
+
+        return plagPercent;
+    }
 
     private static string GetBadgeText(int overall)
         => overall >= 70 ? "Nivel ridicat" : overall >= 30 ? "Nivel mediu" : "Nivel scăzut";
@@ -301,7 +662,8 @@
     private static string GetPhaseText(UiPhase phase)
         => phase switch
         {
-            UiPhase.Upload => "Se încarcă documentul în sistem...",
+            UiPhase.Upload => "Se încarcă documentul analizat în sistem...",
+            UiPhase.UploadReference => "Se încarcă documentul de referință în sistem...",
             UiPhase.Scan => "Se execută analiza de similitudine...",
             UiPhase.Report => "Se generează raportul...",
             _ => "Se procesează..."

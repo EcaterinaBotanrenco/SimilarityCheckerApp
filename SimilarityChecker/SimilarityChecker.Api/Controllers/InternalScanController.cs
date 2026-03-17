@@ -19,11 +19,22 @@ public sealed class InternalScanController : ControllerBase
 
     [HttpPost("start")]
     public async Task<ActionResult<InternalScanStartResponse>> Start(
-    [FromQuery] Guid documentId,
-    CancellationToken ct = default)
+        [FromQuery] Guid documentId,
+        CancellationToken ct = default)
     {
-        const double threshold = 0.25; // prag global fix
+        const double threshold = 0.25;
         var result = await _service.StartAsync(documentId, threshold, ct);
+        return Ok(result);
+    }
+
+    [HttpPost("compare")]
+    public async Task<ActionResult<InternalScanReportDto>> Compare(
+        [FromQuery] Guid primaryDocumentId,
+        [FromQuery] Guid referenceDocumentId,
+        CancellationToken ct = default)
+    {
+        const double threshold = 0.25;
+        var result = await _service.CompareTwoDocumentsAsync(primaryDocumentId, referenceDocumentId, threshold, ct);
         return Ok(result);
     }
 
@@ -41,13 +52,28 @@ public sealed class InternalScanController : ControllerBase
         var report = await _service.GetReportAsync(documentId, ct);
         if (report is null) return NotFound("Nu există raport pentru acest document.");
 
-        var pdfBytes = BuildPdf(report);
+        var pdfBytes = BuildPdf(report, $"Raport pentru documentul {documentId}", "Scanare internă");
 
         var fileName = $"raport-scanare-interna-{documentId}.pdf";
         return File(pdfBytes, "application/pdf", fileName);
     }
 
-    private static byte[] BuildPdf(InternalScanReportDto report)
+    [HttpGet("report/compare/{primaryDocumentId:guid}/{referenceDocumentId:guid}/pdf")]
+    public async Task<IActionResult> DownloadComparePdf(Guid primaryDocumentId, Guid referenceDocumentId, CancellationToken ct)
+    {
+        const double threshold = 0.25;
+        var report = await _service.CompareTwoDocumentsAsync(primaryDocumentId, referenceDocumentId, threshold, ct);
+
+        var pdfBytes = BuildPdf(
+            report,
+            $"Raport de comparație între documente",
+            $"Document analizat: {primaryDocumentId} | Document de referință: {referenceDocumentId}");
+
+        var fileName = $"raport-comparatie-{primaryDocumentId}-{referenceDocumentId}.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
+    private static byte[] BuildPdf(InternalScanReportDto report, string title, string subtitle)
     {
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -57,14 +83,12 @@ public sealed class InternalScanController : ControllerBase
         int avg = report.Hits.Count == 0 ? 0
             : (int)Math.Round(report.Hits.Average(x => x.SimilarityScore) * 100);
 
-        // Procente tri-color (dacă nu sunt setate, derivăm un minim din overall)
         int exactPct = report.ExactPercent;
         int paraPct = report.ParaphrasePercent;
         int cleanPct = report.CleanPercent;
 
         if (exactPct == 0 && paraPct == 0 && cleanPct == 0)
         {
-            // fallback sigur
             exactPct = overall;
             paraPct = 0;
             cleanPct = Math.Max(0, 100 - exactPct);
@@ -80,15 +104,14 @@ public sealed class InternalScanController : ControllerBase
                 page.Margin(30);
                 page.DefaultTextStyle(x => x.FontSize(11));
 
-                // ===== HEADER =====
                 page.Header().Row(row =>
                 {
                     row.RelativeItem().Column(col =>
                     {
-                        col.Item().Text("Raport de similitudine")
+                        col.Item().Text(title)
                             .FontSize(18).SemiBold();
 
-                        col.Item().Text("Scanare internă")
+                        col.Item().Text(subtitle)
                             .FontSize(12).FontColor(Colors.Grey.Darken2);
                     });
 
@@ -102,26 +125,22 @@ public sealed class InternalScanController : ControllerBase
                     });
                 });
 
-                // ===== CONTENT =====
                 page.Content().Column(col =>
                 {
                     col.Spacing(14);
 
-                    // --- Secțiune: Rezumat ---
                     col.Item().Text("1. Rezumat")
                         .FontSize(13).SemiBold();
 
                     col.Item().Row(row =>
                     {
-                        // Card stânga: scoruri
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(12).Column(c =>
                         {
                             c.Spacing(6);
 
                             c.Item().Text("Indicatori principali").SemiBold();
-
                             c.Item().Text($"Nivel maxim (overall): {overall}%  •  {LevelLabel(overall)}");
-                            c.Item().Text($"Media (top rezultate): {avg}%");
+                            c.Item().Text($"Media rezultatelor: {avg}%");
                             c.Item().Text($"Documente comparate: {report.Hits.Count}");
 
                             c.Item().PaddingTop(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
@@ -132,20 +151,17 @@ public sealed class InternalScanController : ControllerBase
                             c.Item().Text($"Curat: {cleanPct}%");
                         });
 
-                        // Card dreapta: bară tri-color (vizual)
                         row.ConstantItem(220).Border(1).BorderColor(Colors.Grey.Lighten2).Padding(12).Column(c =>
                         {
                             c.Spacing(10);
                             c.Item().Text("Vizual").SemiBold();
 
-                            // bară tri-color
                             c.Item().Row(r =>
                             {
                                 if (exactPct > 0) r.RelativeItem(exactPct).Height(14).Background(Colors.Red.Medium);
                                 if (paraPct > 0) r.RelativeItem(paraPct).Height(14).Background(Colors.Orange.Medium);
                                 if (cleanPct > 0) r.RelativeItem(cleanPct).Height(14).Background(Colors.Green.Medium);
 
-                                // dacă toate sunt 0 (caz rar), punem o bară neutră
                                 if (exactPct == 0 && paraPct == 0 && cleanPct == 0)
                                     r.RelativeItem(1).Height(14).Background(Colors.Grey.Lighten2);
                             });
@@ -176,13 +192,12 @@ public sealed class InternalScanController : ControllerBase
                         });
                     });
 
-                    // --- Secțiune: Rezultate Top ---
-                    col.Item().Text("2. Rezultate (Top documente similare)")
+                    col.Item().Text("2. Rezultate")
                         .FontSize(13).SemiBold();
 
                     if (report.Hits.Count == 0)
                     {
-                        col.Item().Text("Nu au fost găsite documente similare peste prag.")
+                        col.Item().Text("Nu au fost găsite rezultate similare peste prag.")
                             .FontColor(Colors.Grey.Darken2);
                     }
                     else
@@ -217,7 +232,6 @@ public sealed class InternalScanController : ControllerBase
                         });
                     }
 
-                    // --- Secțiune: Fragmente (doar în raport) ---
                     col.Item().Text("3. Fragmente identificate")
                         .FontSize(13).SemiBold();
 
@@ -228,9 +242,8 @@ public sealed class InternalScanController : ControllerBase
                     }
                     else
                     {
-                        // limităm ca PDF-ul să nu devină uriaș (poți mări)
                         foreach (var f in report.Fragments
-                                     .OrderByDescending(x => x.Type) // Exact înaintea Paraphrase
+                                     .OrderByDescending(x => x.Type)
                                      .ThenByDescending(x => x.Score)
                                      .Take(30))
                         {
@@ -241,10 +254,8 @@ public sealed class InternalScanController : ControllerBase
                             {
                                 box.Spacing(6);
 
-                                // header fragment
                                 box.Item().Row(r =>
                                 {
-                                    // badge tip
                                     r.RelativeItem().Text($"{label} • {pct}%")
                                         .SemiBold()
                                         .FontColor(f.Type == FragmentTypeDto.Exact ? Colors.Red.Darken2 : Colors.Orange.Darken2);
@@ -256,7 +267,6 @@ public sealed class InternalScanController : ControllerBase
 
                                 box.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
-                                // snippet-uri
                                 box.Item().Text("În documentul încărcat:")
                                     .FontSize(10).FontColor(Colors.Grey.Darken2);
 
@@ -271,12 +281,11 @@ public sealed class InternalScanController : ControllerBase
                             });
                         }
 
-                        col.Item().Text("*Se afișează maxim 30 fragmente (cele mai relevante).")
+                        col.Item().Text("*Se afișează maxim 30 fragmente.")
                             .FontSize(9).FontColor(Colors.Grey.Darken2);
                     }
                 });
 
-                // ===== FOOTER =====
                 page.Footer().Row(row =>
                 {
                     row.RelativeItem()

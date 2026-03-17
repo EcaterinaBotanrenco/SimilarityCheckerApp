@@ -16,6 +16,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "SimilarityChecker.Shared.Dtos.LoginRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/auth/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "SimilarityChecker.Shared.Dtos.ResetPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SimilarityChecker.Api.Controllers.DocumentsController",
     "Method": "Upload",
     "RelativePath": "api/documents/upload",
@@ -32,6 +64,37 @@
     "ReturnTypes": [
       {
         "Type": "SimilarityChecker.Api.Models.DocumentUploadResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "Compare",
+    "RelativePath": "api/internal-scan/compare",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "primaryDocumentId",
+        "Type": "System.Guid",
+        "IsRequired": false
+      },
+      {
+        "Name": "referenceDocumentId",
+        "Type": "System.Guid",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Shared.Dto.InternalScanReportDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -85,6 +148,27 @@
   },
   {
     "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "DownloadComparePdf",
+    "RelativePath": "api/internal-scan/report/compare/{primaryDocumentId}/{referenceDocumentId}/pdf",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "primaryDocumentId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "referenceDocumentId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
     "Method": "Start",
     "RelativePath": "api/internal-scan/start",
     "HttpMethod": "POST",
@@ -100,37 +184,6 @@
     "ReturnTypes": [
       {
         "Type": "SimilarityChecker.Api.Models.InternalScanStartResponse",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "SimilarityChecker.Api.Controllers.PlagiarismController",
-    "Method": "Check",
-    "RelativePath": "api/plagiarism/check",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "MainFile",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      },
-      {
-        "Name": "ReferenceFile",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "SimilarityChecker.Shared.Dto.PlagiarismCheckResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",
