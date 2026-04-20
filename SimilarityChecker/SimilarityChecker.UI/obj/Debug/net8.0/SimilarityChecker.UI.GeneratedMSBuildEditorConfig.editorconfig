@@ -1,4 +1,7 @@
 is_global = true
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = true
@@ -22,6 +25,14 @@ build_property.EnableCodeStyleSeverity =
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/App.razor]
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Authentication/Admin.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aGVudGljYXRpb25cQWRtaW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Authentication/Component.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aGVudGljYXRpb25cQ29tcG9uZW50LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/UTM.FCIM.TI/Teza de licență/SimilarityCheckerApp/SimilarityChecker/SimilarityChecker.UI/Pages/Authentication/ForgotPassword.razor]

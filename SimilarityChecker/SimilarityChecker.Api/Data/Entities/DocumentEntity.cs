@@ -25,7 +25,13 @@ public sealed class DocumentEntity
     [MaxLength(10)]
     public string? Language { get; set; }
 
-    public string ExtractedText { get; set; } = string.Empty;
+    [MaxLength(500)]
+    public string StoredFilePath { get; set; } = string.Empty;
+
+    [MaxLength(500)]
+    public string ExtractedTextPath { get; set; } = string.Empty;
+
+    public long FileSizeBytes { get; set; }
 
     public List<SearchQueryEntity> SearchQueries { get; set; } = new();
     public List<MatchEntity> Matches { get; set; } = new();

@@ -5,9 +5,11 @@ using SimilarityChecker.Api.Data;
 using SimilarityChecker.Api.Data.Entities;
 using SimilarityChecker.Api.Models;
 using SimilarityChecker.Api.Services;
-using SimilarityChecker.Api.Services.TextExtraction;
+using SimilarityChecker.Api.Services.Storage;
+using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace SimilarityChecker.Api.Controllers;
 
@@ -18,11 +20,23 @@ public sealed class DocumentsController : ControllerBase
 {
     private readonly SimilarityCheckerDbContext _db;
     private readonly TextExtractionService _textExtraction;
+    private readonly IDocumentStorageService _storage;
 
-    public DocumentsController(SimilarityCheckerDbContext db, TextExtractionService textExtraction)
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".pdf", ".docx", ".txt"
+    };
+
+    private const long MaxFileSizeBytes = 20 * 1024 * 1024;
+
+    public DocumentsController(
+        SimilarityCheckerDbContext db,
+        TextExtractionService textExtraction,
+        IDocumentStorageService storage)
     {
         _db = db;
         _textExtraction = textExtraction;
+        _storage = storage;
     }
 
     [HttpPost("upload")]
@@ -31,67 +45,234 @@ public sealed class DocumentsController : ControllerBase
         [FromForm] DocumentUploadRequest request,
         CancellationToken ct)
     {
-        if (request.File == null || request.File.Length == 0)
+        if (request.File is null)
             return BadRequest("Fișierul este obligatoriu.");
 
         var currentUserId = GetCurrentUserId();
 
-        byte[] bytes;
-        using (var ms = new MemoryStream())
+        var result = await ProcessSingleFileAsync(request.File, currentUserId, ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(new DocumentUploadResponse
         {
-            await request.File.CopyToAsync(ms, ct);
-            bytes = ms.ToArray();
+            DocumentId = result.DocumentId!.Value,
+            FileName = result.FileName,
+            WordCount = result.WordCount ?? 0,
+            Sha256 = result.Sha256 ?? string.Empty
+        });
+    }
+
+    [HttpPost("upload-multiple")]
+    [Authorize(Roles = "Administrator")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<MultipleDocumentUploadResponse>> UploadMultiple(
+        [FromForm] List<IFormFile> files,
+        CancellationToken ct)
+    {
+        if (files is null || files.Count == 0)
+            return BadRequest("Trebuie selectat cel puțin un fișier.");
+
+        var currentUserId = GetCurrentUserId();
+        var response = new MultipleDocumentUploadResponse
+        {
+            TotalFiles = files.Count
+        };
+
+        foreach (var file in files)
+        {
+            var result = await ProcessSingleFileAsync(file, currentUserId, ct);
+            response.Results.Add(result);
+
+            if (result.IsSuccess)
+                response.ImportedCount++;
+            else
+                response.SkippedCount++;
         }
 
-        var fileName = request.File.FileName;
+        return Ok(response);
+    }
+
+    private async Task<SingleDocumentImportResult> ProcessSingleFileAsync(
+        IFormFile? file,
+        Guid currentUserId,
+        CancellationToken ct)
+    {
+        if (file is null)
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = "(fără nume)",
+                IsSuccess = false,
+                Message = "Fișierul este obligatoriu."
+            };
+        }
+
+        if (file.Length == 0)
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = file.FileName,
+                IsSuccess = false,
+                Message = "Fișierul este gol."
+            };
+        }
+
+        if (file.Length > MaxFileSizeBytes)
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = file.FileName,
+                IsSuccess = false,
+                Message = "Fișierul depășește dimensiunea maximă admisă de 20 MB."
+            };
+        }
+
+        var fileName = file.FileName?.Trim();
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = "(nume invalid)",
+                IsSuccess = false,
+                Message = "Numele fișierului este invalid."
+            };
+        }
+
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = fileName,
+                IsSuccess = false,
+                Message = "Format de fișier neacceptat. Sunt permise doar PDF, DOCX și TXT."
+            };
+        }
+
+        byte[] bytes;
+        try
+        {
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms, ct);
+            bytes = ms.ToArray();
+        }
+        catch
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = fileName,
+                IsSuccess = false,
+                Message = "Fișierul nu a putut fi citit corect."
+            };
+        }
+
+        if (bytes.Length == 0)
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = fileName,
+                IsSuccess = false,
+                Message = "Fișierul încărcat nu conține date valide."
+            };
+        }
+
         var sha = Hasher.Sha256Hex(bytes);
 
         var existing = await _db.Documents
             .FirstOrDefaultAsync(d => d.Sha256 == sha && d.UserId == currentUserId, ct);
 
-        if (existing != null)
+        if (existing is not null)
         {
-            return Ok(new DocumentUploadResponse
+            return new SingleDocumentImportResult
             {
-                DocumentId = existing.Id,
                 FileName = existing.FileName,
+                IsSuccess = true,
+                IsDuplicate = true,
+                DocumentId = existing.Id,
                 WordCount = existing.WordCount,
-                Sha256 = existing.Sha256
-            });
+                Sha256 = existing.Sha256,
+                Message = "Document deja existent în baza de date."
+            };
         }
 
-        var text = await _textExtraction.ExtractAsync(bytes, fileName, ct);
-        var wordCount = CountWords(text);
+        string extractedText;
+        try
+        {
+            extractedText = await _textExtraction.ExtractAsync(bytes, fileName, ct);
+        }
+        catch
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = fileName,
+                IsSuccess = false,
+                Message = "Fișierul este corupt, protejat sau nu a putut fi procesat."
+            };
+        }
+
+        var normalizedText = NormalizeExtractedText(extractedText);
+        var wordCount = CountWords(normalizedText);
+
+        if (string.IsNullOrWhiteSpace(normalizedText) || wordCount == 0)
+        {
+            return new SingleDocumentImportResult
+            {
+                FileName = fileName,
+                IsSuccess = false,
+                Message = "Fișierul nu conține text procesabil pentru analiză."
+            };
+        }
+
+        var documentId = Guid.NewGuid();
+
+        var storedFile = await _storage.SaveOriginalFileAsync(documentId, fileName, bytes, ct);
+        var extractedTextPath = await _storage.SaveExtractedTextAsync(documentId, normalizedText, ct);
 
         var doc = new DocumentEntity
         {
+            Id = documentId,
             FileName = fileName,
-            FileType = Path.GetExtension(fileName).TrimStart('.').ToLowerInvariant(),
+            FileType = extension.TrimStart('.').ToLowerInvariant(),
             Sha256 = sha,
             UserId = currentUserId,
-            ExtractedText = text,
             WordCount = wordCount,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            StoredFilePath = storedFile.RelativePath,
+            ExtractedTextPath = extractedTextPath,
+            FileSizeBytes = storedFile.FileSizeBytes
         };
 
         _db.Documents.Add(doc);
         await _db.SaveChangesAsync(ct);
 
-        return Ok(new DocumentUploadResponse
+        return new SingleDocumentImportResult
         {
-            DocumentId = doc.Id,
             FileName = doc.FileName,
+            IsSuccess = true,
+            IsDuplicate = false,
+            DocumentId = doc.Id,
             WordCount = doc.WordCount,
-            Sha256 = doc.Sha256
-        });
+            Sha256 = doc.Sha256,
+            Message = "Document importat cu succes."
+        };
+    }
+
+    private static string NormalizeExtractedText(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return string.Empty;
+
+        return Regex.Replace(text, @"\s+", " ").Trim();
     }
 
     private static int CountWords(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) return 0;
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
 
-        return text.Split(new[] { ' ', '\r', '\n', '\t' },
-            StringSplitOptions.RemoveEmptyEntries).Length;
+        return text.Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     private Guid GetCurrentUserId()

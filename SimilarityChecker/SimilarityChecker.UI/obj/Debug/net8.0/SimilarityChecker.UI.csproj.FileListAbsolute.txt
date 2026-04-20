@@ -254,3 +254,7 @@ D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\Similari
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.JSInterop.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Solutaris.InfoWARE.ProtectedBrowserStorage.dll
 D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.Localization.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\Microsoft.Extensions.Localization.Abstractions.dll
+D:\UTM.FCIM.TI\Teza de licență\SimilarityCheckerApp\SimilarityChecker\SimilarityChecker.UI\bin\Debug\net8.0\MudBlazor.dll

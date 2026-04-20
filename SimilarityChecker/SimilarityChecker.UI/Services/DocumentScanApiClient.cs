@@ -31,6 +31,22 @@ namespace SimilarityChecker.UI.Services
             }
         }
 
+        private static async Task EnsureSuccessWithMessageAsync(HttpResponseMessage response, string fallbackMessage)
+        {
+            if (response.IsSuccessStatusCode)
+                return;
+
+            var serverMessage = await response.Content.ReadAsStringAsync();
+
+            if (!string.IsNullOrWhiteSpace(serverMessage))
+            {
+                serverMessage = serverMessage.Trim().Trim('"');
+                throw new InvalidOperationException(serverMessage);
+            }
+
+            throw new InvalidOperationException(fallbackMessage);
+        }
+
         public async Task<DocumentUploadResponseDto> UploadDocumentAsync(Stream fileStream, string fileName, CancellationToken ct = default)
         {
             using var form = new MultipartFormDataContent();
@@ -46,7 +62,7 @@ namespace SimilarityChecker.UI.Services
             AddAuthorizationHeader(request);
 
             var response = await _http.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessWithMessageAsync(response, "Încărcarea documentului a eșuat.");
 
             var dto = await response.Content.ReadFromJsonAsync<DocumentUploadResponseDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (upload).");
@@ -58,7 +74,7 @@ namespace SimilarityChecker.UI.Services
             AddAuthorizationHeader(request);
 
             var response = await _http.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessWithMessageAsync(response, "Pornirea scanării a eșuat.");
 
             var dto = await response.Content.ReadFromJsonAsync<InternalScanStartResponseDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (start scan).");
@@ -70,7 +86,7 @@ namespace SimilarityChecker.UI.Services
             AddAuthorizationHeader(request);
 
             var response = await _http.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessWithMessageAsync(response, "Raportul nu a putut fi încărcat.");
 
             var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (report).");
@@ -85,7 +101,7 @@ namespace SimilarityChecker.UI.Services
             AddAuthorizationHeader(request);
 
             var response = await _http.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccessWithMessageAsync(response, "Compararea documentelor a eșuat.");
 
             var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (compare documents).");

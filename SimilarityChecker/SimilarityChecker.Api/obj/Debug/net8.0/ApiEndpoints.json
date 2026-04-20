@@ -1,5 +1,47 @@
 [
   {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
+    "Method": "AssignAdminRole",
+    "RelativePath": "api/admin/assign-admin/{userId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
+    "Method": "UploadDocument",
+    "RelativePath": "api/admin/upload-document",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
+    "Method": "GetUsers",
+    "RelativePath": "api/admin/users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
     "Method": "ForgotPassword",
     "RelativePath": "api/auth/forgot-password",
@@ -26,6 +68,22 @@
       {
         "Name": "request",
         "Type": "SimilarityChecker.Shared.Dtos.LoginRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.AuthController",
+    "Method": "Register",
+    "RelativePath": "api/auth/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "SimilarityChecker.Shared.Dtos.RegisterRequestDto",
         "IsRequired": true
       }
     ],
@@ -64,6 +122,32 @@
     "ReturnTypes": [
       {
         "Type": "SimilarityChecker.Api.Models.DocumentUploadResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.DocumentsController",
+    "Method": "UploadMultiple",
+    "RelativePath": "api/documents/upload-multiple",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "files",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Shared.Dto.MultipleDocumentUploadResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",

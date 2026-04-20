@@ -1,9 +1,13 @@
-﻿<div class="sidebar-header">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using SimilarityChecker.UI.Authentication
+@inject IAuthService Auth
+@inject NavigationManager Nav
+
+<div class="sidebar-header">
     <a class="brand" href="">
         <div class="brand-badge">SC</div>
         <div class="brand-text">
             <span class="brand-title">SimilarityChecker</span>
-            <span class="brand-subtitle">UI academic modern</span>
         </div>
     </a>
 
@@ -16,10 +20,21 @@
     <div class="menu-section-title">Navigare</div>
 
     <nav class="menu-links">
-        <NavLink href="login" class="menu-link">
-            <span class="oi oi-account-login menu-icon" aria-hidden="true"></span>
-            <span class="menu-link-text">Login</span>
-        </NavLink>
+
+        <AuthorizeView>
+            <NotAuthorized>
+                <NavLink href="login" class="menu-link">
+                    <span class="oi oi-account-login menu-icon" aria-hidden="true"></span>
+                    <span class="menu-link-text">Login</span>
+                </NavLink>
+            </NotAuthorized>
+            <Authorized>
+                <a class="menu-link" @onclick="HandleLogout" style="cursor: pointer;">
+                    <span class="oi oi-account-logout menu-icon" aria-hidden="true"></span>
+                    <span class="menu-link-text">Sign Out</span>
+                </a>
+            </Authorized>
+        </AuthorizeView>
 
         <NavLink href="profile" class="menu-link">
             <span class="oi oi-person menu-icon" aria-hidden="true"></span>
@@ -44,5 +59,12 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await Auth.SignOutAsync();
+        // Redirecționează automat pe pagina de login
+        Nav.NavigateTo("/login", forceLoad: true); 
     }
 }

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace SimilarityChecker.UI
@@ -22,10 +23,13 @@ namespace SimilarityChecker.UI
             var builder = WebApplication.CreateBuilder(args);
 
 
-
             builder.Services.AddHttpClient("Api", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:7260");
+            });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
 
             CreateHostBuilder(args).Build().Run();

@@ -111,6 +111,21 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("AppUsers");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.AppUserRoleEntity", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AppUserRoleEntity");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -121,13 +136,20 @@ namespace SimilarityChecker.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ExtractedText")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtractedTextPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(260)
                         .HasColumnType("nvarchar(260)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("FileType")
                         .IsRequired()
@@ -142,6 +164,11 @@ namespace SimilarityChecker.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("StoredFilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -301,6 +328,21 @@ namespace SimilarityChecker.Api.Migrations
                     b.ToTable("Reports");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.RoleEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoleEntity");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.SearchQueryEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -381,12 +423,31 @@ namespace SimilarityChecker.Api.Migrations
                     b.Navigation("OnlineSource");
                 });
 
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.AppUserRoleEntity", b =>
+                {
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.RoleEntity", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimilarityChecker.Api.Data.Entities.AppUserEntity", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
                 {
                     b.HasOne("SimilarityChecker.Api.Data.Entities.AppUserEntity", "User")
                         .WithMany("Documents")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -470,6 +531,8 @@ namespace SimilarityChecker.Api.Migrations
                     b.Navigation("PasswordResetTokens");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.DocumentEntity", b =>
@@ -484,6 +547,11 @@ namespace SimilarityChecker.Api.Migrations
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.OnlineSourceEntity", b =>
                 {
                     b.Navigation("Matches");
+                });
+
+            modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.RoleEntity", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SimilarityChecker.Api.Data.Entities.SearchQueryEntity", b =>

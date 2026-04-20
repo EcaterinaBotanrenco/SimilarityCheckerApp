@@ -88,13 +88,41 @@ namespace SimilarityChecker.Api.Controllers
             }
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _authService.RegisterAsync(request);
+
+                if (!result.Success)
+                    return BadRequest(result);
+
+                // FIX: return the full AuthResponseDto (token + user) instead of only a message
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    error = ex.Message,
+                    innerError = ex.InnerException?.Message
+                });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             var result = await _authService.LoginAsync(request);
 
             if (!result.Success)
-                return BadRequest(result);
+            {
+                return BadRequest(new { errorMessage = result.ErrorMessage ?? "Autentificare eșuată." });
+            }
 
             return Ok(result);
         }

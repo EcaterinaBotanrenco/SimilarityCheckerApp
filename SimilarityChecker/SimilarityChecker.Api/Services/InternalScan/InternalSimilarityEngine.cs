@@ -18,16 +18,244 @@ public static class InternalSimilarityEngine
 
     public static double ComputeSimilarity(string a, string b)
     {
+        return ComputeSimilarity(a, b, null);
+    }
+
+    public static double ComputeSimilarity(string a, string b, IEnumerable<string>? corpusTexts)
+    {
+        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
+            return 0;
+
+        double shingleScore = ComputeShingleJaccardSimilarity(a, b);
+        double cosineScore = ComputeTfidfCosineSimilarity(a, b, corpusTexts);
+        double simHashScore = ComputeSimHashSimilarity(a, b);
+
+        double combined =
+            0.30 * shingleScore +
+            0.50 * cosineScore +
+            0.20 * simHashScore;
+
+        return Math.Clamp(combined, 0, 1);
+    }
+
+
+    private static double ComputeTfidfCosineSimilarity(string a, string b, IEnumerable<string>? corpusTexts)
+    {
+        var tokensA = TokenizeWordsForVector(a);
+        var tokensB = TokenizeWordsForVector(b);
+
+        if (tokensA.Count == 0 || tokensB.Count == 0)
+            return 0;
+
+        var corpus = corpusTexts?
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList() ?? new List<string>();
+
+        if (corpus.Count == 0)
+        {
+            corpus.Add(a);
+            corpus.Add(b);
+        }
+        else
+        {
+            corpus.Add(a);
+            corpus.Add(b);
+        }
+
+        var idf = BuildIdfDictionary(corpus);
+
+        var vectorA = BuildTfidfVector(tokensA, idf);
+        var vectorB = BuildTfidfVector(tokensB, idf);
+
+        return ComputeCosineFromVectors(vectorA, vectorB);
+    }
+
+    private static Dictionary<string, double> BuildIdfDictionary(IEnumerable<string> corpusTexts)
+    {
+        var documents = corpusTexts
+            .Select(TokenizeWordsForVector)
+            .Where(tokens => tokens.Count > 0)
+            .ToList();
+
+        int documentCount = documents.Count;
+        var df = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var docTokens in documents)
+        {
+            var uniqueTerms = docTokens.Distinct(StringComparer.OrdinalIgnoreCase);
+            foreach (var term in uniqueTerms)
+            {
+                df[term] = df.TryGetValue(term, out var count) ? count + 1 : 1;
+            }
+        }
+
+        var idf = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kvp in df)
+        {
+            double value = Math.Log((documentCount + 1.0) / (kvp.Value + 1.0)) + 1.0;
+            idf[kvp.Key] = value;
+        }
+
+        return idf;
+    }
+
+    private static Dictionary<string, double> BuildTfidfVector(
+        List<string> tokens,
+        Dictionary<string, double> idf)
+    {
+        var tf = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+        if (tokens.Count == 0)
+            return tf;
+
+        foreach (var token in tokens)
+        {
+            tf[token] = tf.TryGetValue(token, out var count) ? count + 1 : 1;
+        }
+
+        double total = tokens.Count;
+        var tfidf = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kvp in tf)
+        {
+            double tfValue = kvp.Value / total;
+            double idfValue = idf.TryGetValue(kvp.Key, out var value) ? value : 1.0;
+            tfidf[kvp.Key] = tfValue * idfValue;
+        }
+
+        return tfidf;
+    }
+
+    private static double ComputeCosineFromVectors(
+        Dictionary<string, double> vectorA,
+        Dictionary<string, double> vectorB)
+    {
+        if (vectorA.Count == 0 || vectorB.Count == 0)
+            return 0;
+
+        var vocabulary = vectorA.Keys.Union(vectorB.Keys, StringComparer.OrdinalIgnoreCase);
+
+        double dot = 0;
+        double normA = 0;
+        double normB = 0;
+
+        foreach (var term in vocabulary)
+        {
+            vectorA.TryGetValue(term, out var aVal);
+            vectorB.TryGetValue(term, out var bVal);
+
+            dot += aVal * bVal;
+            normA += aVal * aVal;
+            normB += bVal * bVal;
+        }
+
+        if (normA == 0 || normB == 0)
+            return 0;
+
+        return dot / (Math.Sqrt(normA) * Math.Sqrt(normB));
+    }
+
+    private static readonly Regex WordRegex = new(@"\p{L}+", RegexOptions.Compiled);
+
+    private static List<string> TokenizeWordsForVector(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return new List<string>();
+
+        return WordRegex.Matches(text.ToLowerInvariant())
+            .Select(m => NormalizeContentToken(m.Value))
+            .Where(x => !string.IsNullOrWhiteSpace(x) && x.Length >= 3 && !StopWords.Contains(x))
+            .ToList();
+    }
+
+    private static ulong ComputeSimHash(string text)
+    {
+        var tokens = TokenizeWordsForVector(text);
+        if (tokens.Count == 0)
+            return 0;
+
+        var vector = new int[64];
+
+        foreach (var token in tokens)
+        {
+            ulong hash = HashToken64(token);
+
+            for (int i = 0; i < 64; i++)
+            {
+                bool bitSet = ((hash >> i) & 1UL) == 1UL;
+                vector[i] += bitSet ? 1 : -1;
+            }
+        }
+
+        ulong simHash = 0;
+        for (int i = 0; i < 64; i++)
+        {
+            if (vector[i] > 0)
+                simHash |= 1UL << i;
+        }
+
+        return simHash;
+    }
+
+    private static ulong HashToken64(string token)
+    {
+        const ulong offset = 14695981039346656037;
+        const ulong prime = 1099511628211;
+
+        ulong hash = offset;
+        foreach (var ch in token)
+        {
+            hash ^= ch;
+            hash *= prime;
+        }
+
+        return hash;
+    }
+
+    private static int HammingDistance(ulong a, ulong b)
+    {
+        ulong x = a ^ b;
+        int count = 0;
+
+        while (x != 0)
+        {
+            x &= x - 1;
+            count++;
+        }
+
+        return count;
+    }
+
+    private static double ComputeSimHashSimilarity(string a, string b)
+    {
+        ulong hashA = ComputeSimHash(a);
+        ulong hashB = ComputeSimHash(b);
+
+        if (hashA == 0 || hashB == 0)
+            return 0;
+
+        int distance = HammingDistance(hashA, hashB);
+        return 1.0 - (distance / 64.0);
+    }
+
+    private static double ComputeShingleJaccardSimilarity(string a, string b)
+    {
         var setA = BuildShingleSet(a);
         var setB = BuildShingleSet(b);
 
-        if (setA.Count == 0 || setB.Count == 0) return 0;
+        if (setA.Count == 0 || setB.Count == 0)
+            return 0;
 
         int intersection = 0;
-        if (setA.Count > setB.Count) (setA, setB) = (setB, setA);
+        if (setA.Count > setB.Count)
+            (setA, setB) = (setB, setA);
 
         foreach (var h in setA)
-            if (setB.Contains(h)) intersection++;
+        {
+            if (setB.Contains(h))
+                intersection++;
+        }
 
         int union = setA.Count + setB.Count - intersection;
         return union == 0 ? 0 : (double)intersection / union;
@@ -136,16 +364,16 @@ public static class InternalSimilarityEngine
                 if (sharedWords < minSharedContentWords)
                     continue;
 
-                double wordScore = JaccardSimilarity(sourceContentSet, referenceContentSet);
-                double charScore = DiceBigramsSimilarity(sourceSentence.Text, referenceSentence.Text);
                 double exactScore = ComputeWindowExactSimilarity(
-                    sourceSentence.Tokens, 0, sourceSentence.Tokens.Length,
-                    referenceSentence.Tokens, 0, referenceSentence.Tokens.Length);
+                sourceSentence.Tokens, 0, sourceSentence.Tokens.Length,
+                referenceSentence.Tokens, 0, referenceSentence.Tokens.Length);
 
                 if (exactScore >= maxExactSimilarity)
                     continue;
 
-                double combinedScore = 0.80 * wordScore + 0.20 * charScore;
+                double combinedScore = ComputeSentenceSemanticScore(
+                    sourceSentence.Text,
+                    referenceSentence.Text);
 
                 if (combinedScore < minCombinedScore)
                     continue;
@@ -171,6 +399,25 @@ public static class InternalSimilarityEngine
         }
 
         return MergeParaphraseFragments(results, 1);
+    }
+    private static double ComputeSentenceSemanticScore(string sourceSentence, string referenceSentence)
+    {
+        var sourceSet = BuildContentWordSet(sourceSentence);
+        var referenceSet = BuildContentWordSet(referenceSentence);
+
+        if (sourceSet.Count == 0 || referenceSet.Count == 0)
+            return 0;
+
+        double wordJaccard = JaccardSimilarity(sourceSet, referenceSet);
+        double charDice = DiceBigramsSimilarity(sourceSentence, referenceSentence);
+        double cosine = ComputeSimilarity(sourceSentence, referenceSentence, null);
+
+        double score =
+            0.40 * wordJaccard +
+            0.20 * charDice +
+            0.40 * cosine;
+
+        return Math.Clamp(score, 0, 1);
     }
 
     private static List<ParaphraseMatchFragment> MergeParaphraseFragments(
@@ -346,28 +593,6 @@ public static class InternalSimilarityEngine
                 count++;
 
         return count;
-    }
-
-    private static HashSet<string> BuildContentTokenSet(string[] tokens, int start, int endExclusive)
-    {
-        var result = new HashSet<string>();
-
-        for (int i = start; i < endExclusive && i < tokens.Length; i++)
-        {
-            var t = NormalizeContentToken(tokens[i]);
-            if (string.IsNullOrWhiteSpace(t))
-                continue;
-
-            if (t.Length < 3)
-                continue;
-
-            if (StopWords.Contains(t))
-                continue;
-
-            result.Add(t);
-        }
-
-        return result;
     }
 
     private static string NormalizeContentToken(string token)

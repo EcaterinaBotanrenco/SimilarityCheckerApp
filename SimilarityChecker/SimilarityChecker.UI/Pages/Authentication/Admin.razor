@@ -1,0 +1,63 @@
+﻿@page "/admin"
+@using Microsoft.AspNetCore.Authorization
+@using System.Net.Http.Json
+@attribute [Authorize(Roles = "Admin")]
+@inject HttpClient Http
+
+<h3>Panou Admin</h3>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <p>Acesta este panoul Adminului. Aici poți atribui roluri de Admin și vizualiza utilizatori.</p>
+        <div>
+            <button class="btn btn-primary" @onclick="GetUsers">Vizualizează utilizatori</button>
+        </div>
+
+        @if (users?.Count > 0)
+        {
+            <h4>Utilizatori:</h4>
+            <ul>
+                @foreach (var user in users)
+                {
+                    <li>
+                        @user.UserName (@user.Email)
+                        <button class="btn btn-danger btn-sm" @onclick="() => AssignAdminRole(user.Id)">Atribuie rol Admin</button>
+                    </li>
+                }
+            </ul>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>Nu ai acces la această secțiune, deoarece nu ești Admin.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<AppUser>? users;
+
+    private async Task GetUsers()
+    {
+        users = await Http.GetFromJsonAsync<List<AppUser>>("api/admin/users");
+    }
+
+    private async Task AssignAdminRole(Guid userId)
+    {
+        var result = await Http.PostAsync($"api/admin/assign-admin/{userId}", null);
+        if (result.IsSuccessStatusCode)
+        {
+            await GetUsers();
+        }
+        else
+        {
+            var errorMessage = await result.Content.ReadAsStringAsync();
+            Console.WriteLine(errorMessage);
+        }
+    }
+
+    private sealed class AppUser
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+    }
+}

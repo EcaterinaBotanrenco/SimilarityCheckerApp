@@ -23,5 +23,6 @@ namespace SimilarityChecker.Api.Data.Entities
         public List<DocumentEntity> Documents { get; set; } = new();
         public List<ReportEntity> Reports { get; set; } = new();
         public List<PasswordResetTokenEntity> PasswordResetTokens { get; set; } = new();
+        public List<AppUserRoleEntity> UserRoles { get; set; } = new List<AppUserRoleEntity>();
     }
 }

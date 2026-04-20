@@ -34,11 +34,19 @@ public sealed class SimilarityCheckerDbContext : DbContext
         modelBuilder.Entity<DocumentEntity>()
             .HasIndex(x => x.Sha256);
 
+        modelBuilder.Entity<DocumentEntity>()
+            .Property(x => x.StoredFilePath)
+            .HasMaxLength(500);
+
+        modelBuilder.Entity<DocumentEntity>()
+            .Property(x => x.ExtractedTextPath)
+            .HasMaxLength(500);
+
         modelBuilder.Entity<AppUserEntity>()
             .HasMany(x => x.Documents)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<AppUserEntity>()
             .HasMany(x => x.Reports)
@@ -102,5 +110,18 @@ public sealed class SimilarityCheckerDbContext : DbContext
 
         modelBuilder.Entity<PasswordResetTokenEntity>()
             .HasIndex(x => x.ExpiresAtUtc);
+
+        modelBuilder.Entity<AppUserRoleEntity>()
+            .HasKey(x => new { x.UserId, x.RoleId });
+
+        modelBuilder.Entity<AppUserRoleEntity>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.UserRoles)
+            .HasForeignKey(x => x.UserId);
+
+        modelBuilder.Entity<AppUserRoleEntity>()
+            .HasOne(x => x.Role)
+            .WithMany(x => x.UserRoles)
+            .HasForeignKey(x => x.RoleId);
     }
 }

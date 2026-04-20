@@ -50,10 +50,7 @@ namespace SimilarityChecker.UI.Authentication
             {
                 result = System.Text.Json.JsonSerializer.Deserialize<AuthResponseDto>(
                     content,
-                    new System.Text.Json.JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
             catch
             {
@@ -140,6 +137,7 @@ namespace SimilarityChecker.UI.Authentication
 
             return AuthResult.Ok();
         }
+
         public async Task RequestPasswordResetAsync(string email)
         {
             var response = await _httpClient.PostAsJsonAsync(

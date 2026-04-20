@@ -11,6 +11,24 @@ namespace SimilarityChecker.Shared.Dto
         public int WordCount { get; set; }
         public string Sha256 { get; set; } = string.Empty;
     }
+    public sealed class MultipleDocumentUploadResponse
+    {
+        public int TotalFiles { get; set; }
+        public int ImportedCount { get; set; }
+        public int SkippedCount { get; set; }
+        public List<SingleDocumentImportResult> Results { get; set; } = new();
+    }
+
+    public sealed class SingleDocumentImportResult
+    {
+        public string FileName { get; set; } = string.Empty;
+        public bool IsSuccess { get; set; }
+        public bool IsDuplicate { get; set; }
+        public Guid? DocumentId { get; set; }
+        public int? WordCount { get; set; }
+        public string? Sha256 { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
     public sealed class InternalScanStartResponseDto
     {
         public Guid ReportId { get; set; }
