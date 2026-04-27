@@ -10,6 +10,8 @@ using SimilarityChecker.Shared.Dto;
 using SimilarityChecker.UI.Services.TextExtraction;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using MultipleDocumentUploadResponse = SimilarityChecker.Shared.Dto.MultipleDocumentUploadResponse;
+using SingleDocumentImportResult = SimilarityChecker.Shared.Dto.SingleDocumentImportResult;
 
 namespace SimilarityChecker.Api.Controllers;
 
@@ -65,11 +67,11 @@ public sealed class DocumentsController : ControllerBase
     }
 
     [HttpPost("upload-multiple")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Admin")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<MultipleDocumentUploadResponse>> UploadMultiple(
-        [FromForm] List<IFormFile> files,
-        CancellationToken ct)
+    [FromForm] List<IFormFile> files,
+    CancellationToken ct)
     {
         if (files is null || files.Count == 0)
             return BadRequest("Trebuie selectat cel puțin un fișier.");
@@ -264,7 +266,28 @@ public sealed class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(text))
             return string.Empty;
 
-        return Regex.Replace(text, @"\s+", " ").Trim();
+        // O variantă infinit mai rapidă care evită blocajele Regex alocând memorie o singură dată
+        var sb = new System.Text.StringBuilder(text.Length);
+        bool previousWasWhitespace = false;
+
+        foreach (char c in text)
+        {
+            if (char.IsWhiteSpace(c))
+            {
+                if (!previousWasWhitespace)
+                {
+                    sb.Append(' ');
+                    previousWasWhitespace = true;
+                }
+            }
+            else
+            {
+                sb.Append(c);
+                previousWasWhitespace = false;
+            }
+        }
+
+        return sb.ToString().Trim();
     }
 
     private static int CountWords(string text)
@@ -272,7 +295,27 @@ public sealed class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(text))
             return 0;
 
-        return text.Split(new[] { ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        int wordCount = 0;
+        bool inWord = false;
+
+        // Parcurgem lista de caractere direct (0 alocări de memorie, viteză instantanee)
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (char.IsWhiteSpace(text[i]))
+            {
+                inWord = false;
+            }
+            else
+            {
+                if (!inWord)
+                {
+                    wordCount++;
+                    inWord = true;
+                }
+            }
+        }
+
+        return wordCount;
     }
 
     private Guid GetCurrentUserId()

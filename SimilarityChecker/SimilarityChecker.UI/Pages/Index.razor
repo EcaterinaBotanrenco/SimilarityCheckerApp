@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@* @page "/"
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
@@ -119,6 +119,203 @@
         </div>
     </div>
 </div>
+
+@code {
+    private void GoToInternalScan()
+    {
+        Nav.NavigateTo("/internal-scan");
+    }
+
+    private void GoToProfile()
+    {
+        Nav.NavigateTo("/profile");
+    }
+} *@
+
+
+@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+
+<PageTitle>Acasă</PageTitle>
+
+
+
+<section class="home-hero-card">
+    <div class="home-hero-content">
+        <div class="home-hero-badge">
+            Sistem informatic pentru verificarea similitudinii
+        </div>
+
+        <h1 class="home-hero-title">
+            Analizează documentele și identifică nivelul de similitudine textuală
+        </h1>
+
+        <p class="home-hero-text">
+            SimilarityChecker permite încărcarea documentelor, compararea acestora cu materialele existente
+            în baza de date și generarea rapoartelor de analiză. Platforma este orientată spre utilizarea
+            academică și oferă un flux clar pentru verificarea documentelor.
+        </p>
+
+        <div class="home-hero-actions">
+            <button class="btn btn-primary" @onclick="GoToInternalScan">
+                <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+                Începe scanarea
+            </button>
+
+            <button class="btn btn-outline-primary" @onclick="GoToProfile">
+                <span class="oi oi-person" aria-hidden="true"></span>
+                Vezi profilul
+            </button>
+        </div>
+    </div>
+
+    <div class="home-hero-side">
+        <div class="home-stat-card home-stat-card-primary">
+            <div class="home-stat-label">Formate acceptate</div>
+            <div class="home-stat-value">PDF, DOCX, TXT</div>
+        </div>
+
+        <div class="home-stat-card">
+            <div class="home-stat-label">Metodă de verificare</div>
+            <div class="home-stat-value">Scanare internă</div>
+        </div>
+
+        <div class="home-stat-card">
+            <div class="home-stat-label">Rezultat disponibil</div>
+            <div class="home-stat-value">Raport PDF</div>
+        </div>
+    </div>
+</section>
+
+<section class="home-feature-grid">
+    <div class="app-card home-feature-card">
+        <div class="home-feature-icon">
+            <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+        </div>
+
+        <h3 class="card-title">Încărcarea documentului</h3>
+
+        <p class="card-subtitle">
+            Utilizatorul selectează documentul care urmează să fie analizat. Sistemul primește fișierul
+            și pregătește conținutul pentru procesarea textuală.
+        </p>
+    </div>
+
+    <div class="app-card home-feature-card">
+        <div class="home-feature-icon">
+            <span class="oi oi-loop-circular" aria-hidden="true"></span>
+        </div>
+
+        <h3 class="card-title">Compararea automată</h3>
+
+        <p class="card-subtitle">
+            Textul extras este comparat cu documentele existente în sistem, pentru identificarea fragmentelor
+            similare și calcularea scorului final.
+        </p>
+    </div>
+
+    <div class="app-card home-feature-card">
+        <div class="home-feature-icon">
+            <span class="oi oi-document" aria-hidden="true"></span>
+        </div>
+
+        <h3 class="card-title">Generarea raportului</h3>
+
+        <p class="card-subtitle">
+            După finalizarea scanării, rezultatele sunt prezentate într-un raport structurat, care poate fi
+            vizualizat și descărcat în format PDF.
+        </p>
+    </div>
+</section>
+
+<section class="home-info-grid">
+    <div class="app-card home-workflow-card">
+        <div class="home-section-kicker">Flux de lucru</div>
+
+        <h3 class="card-title">Cum funcționează platforma</h3>
+
+        <p class="card-subtitle">
+            Procesul de verificare este organizat în câțiva pași simpli, astfel încât utilizatorul să poată
+            încărca documentul, porni analiza și consulta rezultatele fără operațiuni suplimentare complicate.
+        </p>
+
+        <div class="home-workflow-list">
+            <div class="home-workflow-item">
+                <div class="home-workflow-number">1</div>
+                <div>
+                    <div class="home-workflow-title">Autentificare în sistem</div>
+                    <div class="home-workflow-text">
+                        Utilizatorul accesează contul personal pentru a putea încărca documente și vizualiza istoricul rapoartelor.
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-workflow-item">
+                <div class="home-workflow-number">2</div>
+                <div>
+                    <div class="home-workflow-title">Încărcarea fișierului</div>
+                    <div class="home-workflow-text">
+                        Documentul este transmis aplicației și este pregătit pentru extragerea textului.
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-workflow-item">
+                <div class="home-workflow-number">3</div>
+                <div>
+                    <div class="home-workflow-title">Analiza similitudinii</div>
+                    <div class="home-workflow-text">
+                        Sistemul compară documentul încărcat cu documentele existente în baza de date.
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-workflow-item">
+                <div class="home-workflow-number">4</div>
+                <div>
+                    <div class="home-workflow-title">Consultarea raportului</div>
+                    <div class="home-workflow-text">
+                        Rezultatul poate fi analizat în interfață și exportat sub formă de raport PDF.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-card home-access-card">
+        <div class="home-section-kicker">Acces rapid</div>
+
+        <h3 class="card-title">Navigare în platformă</h3>
+
+        <p class="card-subtitle">
+            Alege secțiunea de care ai nevoie pentru a continua lucrul în aplicație.
+        </p>
+
+        <div class="home-quick-actions">
+            <button class="btn btn-outline-primary home-action-btn" @onclick='() => Nav.NavigateTo("/login")'>
+                <span class="oi oi-account-login" aria-hidden="true"></span>
+                Autentificare
+            </button>
+
+            <button class="btn btn-outline-primary home-action-btn" @onclick='() => Nav.NavigateTo("/signup")'>
+                <span class="oi oi-plus" aria-hidden="true"></span>
+                Creare cont
+            </button>
+
+            <button class="btn btn-outline-primary home-action-btn" @onclick='() => Nav.NavigateTo("/internal-scan")'>
+                <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+                Scanare internă
+            </button>
+
+            <button class="btn btn-outline-primary home-action-btn" @onclick='() => Nav.NavigateTo("/profile")'>
+                <span class="oi oi-person" aria-hidden="true"></span>
+                Profilul meu
+            </button>
+        </div>
+    </div>
+</section>
 
 @code {
     private void GoToInternalScan()

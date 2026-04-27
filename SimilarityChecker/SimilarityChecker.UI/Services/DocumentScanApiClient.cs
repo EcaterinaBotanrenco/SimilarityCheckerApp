@@ -2,12 +2,14 @@
 using SimilarityChecker.Shared.Dtos;
 using SimilarityChecker.UI.Authentication;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace SimilarityChecker.UI.Services
 {
@@ -105,6 +107,47 @@ namespace SimilarityChecker.UI.Services
 
             var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
             return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (compare documents).");
+        }
+
+        public async Task<MultipleDocumentUploadResponseDto> UploadMultipleDocumentsAsync(List<UploadFileItemDto> files, CancellationToken ct = default)
+        {
+            using var form = new MultipartFormDataContent();
+
+            foreach (var file in files)
+            {
+                var fileContent = new ByteArrayContent(file.Content);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                form.Add(fileContent, "files", file.FileName);
+            }
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "api/documents/upload-multiple")
+            {
+                Content = form
+            };
+
+            AddAuthorizationHeader(request);
+
+            var response = await _http.SendAsync(request, ct);
+            await EnsureSuccessWithMessageAsync(response, "Încărcarea multiplă a documentelor a eșuat.");
+
+            var dto = await response.Content.ReadFromJsonAsync<MultipleDocumentUploadResponseDto>(cancellationToken: ct);
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (upload multiple).");
+        }
+        public async Task<InternalScanReportDto> ScanTextAsync(TextScanRequestDto requestDto, CancellationToken ct = default)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, "api/internal-scan/text")
+            {
+                Content = JsonContent.Create(requestDto)
+            };
+
+            AddAuthorizationHeader(request);
+
+            var response = await _http.SendAsync(request, ct);
+            await EnsureSuccessWithMessageAsync(response, "Verificarea textului a eșuat.");
+
+            var dto = await response.Content.ReadFromJsonAsync<InternalScanReportDto>(cancellationToken: ct);
+
+            return dto ?? throw new InvalidOperationException("Răspuns invalid de la server (scan text).");
         }
     }
 }

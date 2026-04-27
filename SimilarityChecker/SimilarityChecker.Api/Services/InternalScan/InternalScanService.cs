@@ -405,6 +405,211 @@ public sealed class InternalScanService : IInternalScanService
         return report;
     }
 
+    public async Task<InternalScanReportDto> ScanTextAsync(
+    string title,
+    string text,
+    double threshold,
+    CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            throw new InvalidOperationException("Textul introdus nu poate fi gol.");
+        }
+
+        var sourceText = text.Trim();
+
+        var sourceTokenCount = CountTokens(sourceText);
+
+        if (sourceTokenCount < 10)
+        {
+            throw new InvalidOperationException("Textul introdus este prea scurt pentru o analiză relevantă. Introduceți cel puțin 10 cuvinte.");
+        }
+
+        var documents = await _db.Documents
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        if (documents.Count == 0)
+        {
+            throw new InvalidOperationException("Nu există documente în baza de date pentru comparație.");
+        }
+
+        var textMap = await LoadTextsAsync(documents, ct);
+
+        var corpusTexts = documents
+            .Select(x => textMap.GetValueOrDefault(x.Id, string.Empty))
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+        if (corpusTexts.Count == 0)
+        {
+            throw new InvalidOperationException("Documentele existente nu conțin text procesabil pentru comparație.");
+        }
+
+        var hits = new List<InternalScanHitDto>();
+
+        foreach (var document in documents)
+        {
+            var referenceText = textMap.GetValueOrDefault(document.Id, string.Empty);
+
+            if (string.IsNullOrWhiteSpace(referenceText))
+            {
+                continue;
+            }
+
+            var score = InternalSimilarityEngine.ComputeSimilarity(
+                sourceText,
+                referenceText,
+                corpusTexts);
+
+            if (score >= threshold)
+            {
+                hits.Add(new InternalScanHitDto
+                {
+                    ComparedDocumentId = document.Id,
+                    ComparedFileName = document.FileName,
+                    SimilarityScore = score
+                });
+            }
+        }
+
+        hits = hits
+            .OrderByDescending(x => x.SimilarityScore)
+            .ToList();
+
+        const int topK = 5;
+
+        var topReferences = hits
+            .Take(topK)
+            .Select(x => x.ComparedDocumentId)
+            .ToHashSet();
+
+        var referenceDocuments = documents
+            .Where(x => topReferences.Contains(x.Id))
+            .ToList();
+
+        var fragments = new List<InternalScanFragmentDto>();
+
+        foreach (var referenceDocument in referenceDocuments)
+        {
+            var referenceText = textMap.GetValueOrDefault(referenceDocument.Id, string.Empty);
+
+            if (string.IsNullOrWhiteSpace(referenceText))
+            {
+                continue;
+            }
+
+            var exacts = InternalSimilarityEngine.FindExactFragments(
+                sourceText,
+                referenceText,
+                minConsecutiveShingles: 3);
+
+            foreach (var exact in exacts)
+            {
+                fragments.Add(new InternalScanFragmentDto
+                {
+                    Type = FragmentTypeDto.Exact,
+                    Score = exact.Score,
+                    SourceTokenStart = exact.SourceTokenStart,
+                    SourceTokenEnd = exact.SourceTokenEnd,
+                    RefTokenStart = exact.RefTokenStart,
+                    RefTokenEnd = exact.RefTokenEnd,
+                    ReferenceDocumentId = referenceDocument.Id,
+                    ReferenceFileName = referenceDocument.FileName,
+                    SourceSnippet = exact.SourceSnippet,
+                    ReferenceSnippet = exact.ReferenceSnippet
+                });
+            }
+
+            var paraphrases = InternalSimilarityEngine.FindParaphraseFragments(
+                sourceText,
+                referenceText,
+                minCombinedScore: 0.38,
+                maxExactSimilarity: 0.90,
+                minSharedContentWords: 2);
+
+            foreach (var paraphrase in paraphrases)
+            {
+                bool overlapsExact = fragments.Any(f =>
+                    f.Type == FragmentTypeDto.Exact &&
+                    f.ReferenceDocumentId == referenceDocument.Id &&
+                    RangesOverlap(
+                        f.SourceTokenStart,
+                        f.SourceTokenEnd,
+                        paraphrase.SourceTokenStart,
+                        paraphrase.SourceTokenEnd));
+
+                if (overlapsExact)
+                {
+                    continue;
+                }
+
+                fragments.Add(new InternalScanFragmentDto
+                {
+                    Type = FragmentTypeDto.Paraphrase,
+                    Score = paraphrase.Score,
+                    SourceTokenStart = paraphrase.SourceTokenStart,
+                    SourceTokenEnd = paraphrase.SourceTokenEnd,
+                    RefTokenStart = paraphrase.RefTokenStart,
+                    RefTokenEnd = paraphrase.RefTokenEnd,
+                    ReferenceDocumentId = referenceDocument.Id,
+                    ReferenceFileName = referenceDocument.FileName,
+                    SourceSnippet = paraphrase.SourceSnippet,
+                    ReferenceSnippet = paraphrase.ReferenceSnippet
+                });
+            }
+        }
+
+        var exactCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Exact));
+
+        var paraphraseCovered = EstimateCoveredTokens(
+            fragments.Where(f => f.Type == FragmentTypeDto.Paraphrase));
+
+        int exactPercent = 0;
+
+        if (sourceTokenCount > 0 && exactCovered > 0)
+        {
+            exactPercent = (int)Math.Round(100.0 * exactCovered / sourceTokenCount);
+
+            if (exactPercent == 0)
+            {
+                exactPercent = 1;
+            }
+        }
+
+        int paraphrasePercent = 0;
+
+        if (sourceTokenCount > 0 && paraphraseCovered > 0)
+        {
+            paraphrasePercent = (int)Math.Round(100.0 * paraphraseCovered / sourceTokenCount);
+
+            if (paraphrasePercent == 0)
+            {
+                paraphrasePercent = 1;
+            }
+        }
+
+        if (exactPercent + paraphrasePercent > 100)
+        {
+            paraphrasePercent = Math.Max(0, 100 - exactPercent);
+        }
+
+        int cleanPercent = Math.Max(0, 100 - exactPercent - paraphrasePercent);
+
+        return new InternalScanReportDto
+        {
+            ReportId = Guid.Empty,
+            DocumentId = Guid.Empty,
+            GeneratedAtUtc = DateTime.UtcNow,
+            Hits = hits,
+            Fragments = fragments,
+            ExactPercent = exactPercent,
+            ParaphrasePercent = paraphrasePercent,
+            CleanPercent = cleanPercent
+        };
+    }
+
     private async Task<Dictionary<Guid, string>> LoadTextsAsync(IEnumerable<DocumentEntity> documents, CancellationToken ct)
     {
         var result = new Dictionary<Guid, string>();

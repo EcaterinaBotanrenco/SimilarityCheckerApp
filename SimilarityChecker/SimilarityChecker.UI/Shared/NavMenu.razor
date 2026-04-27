@@ -8,6 +8,7 @@
         <div class="brand-badge">SC</div>
         <div class="brand-text">
             <span class="brand-title">SimilarityChecker</span>
+            <span class="brand-subtitle">Analiză documente</span>
         </div>
     </a>
 
@@ -17,39 +18,63 @@
 </div>
 
 <div class="sidebar-menu @(collapseNavMenu ? "is-collapsed" : "")">
-    <div class="menu-section-title">Navigare</div>
+    <div class="menu-block">
+        <div class="menu-section-title">Navigare principală</div>
 
-    <nav class="menu-links">
+        <nav class="menu-links">
+            <NavLink href="" class="menu-link" Match="NavLinkMatch.All">
+                <span class="oi oi-home menu-icon" aria-hidden="true"></span>
+                <span class="menu-link-text">Acasă</span>
+            </NavLink>
 
-        <AuthorizeView>
-            <NotAuthorized>
-                <NavLink href="login" class="menu-link">
-                    <span class="oi oi-account-login menu-icon" aria-hidden="true"></span>
-                    <span class="menu-link-text">Login</span>
-                </NavLink>
-            </NotAuthorized>
-            <Authorized>
-                <a class="menu-link" @onclick="HandleLogout" style="cursor: pointer;">
-                    <span class="oi oi-account-logout menu-icon" aria-hidden="true"></span>
-                    <span class="menu-link-text">Sign Out</span>
-                </a>
-            </Authorized>
-        </AuthorizeView>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <NavLink href="login" class="menu-link">
+                        <span class="oi oi-account-login menu-icon" aria-hidden="true"></span>
+                        <span class="menu-link-text">Autentificare</span>
+                    </NavLink>
+                </NotAuthorized>
 
-        <NavLink href="profile" class="menu-link">
-            <span class="oi oi-person menu-icon" aria-hidden="true"></span>
-            <span class="menu-link-text">Profilul meu</span>
-        </NavLink>
+                <Authorized>
+                    <a class="menu-link" @onclick="HandleLogout" style="cursor: pointer;">
+                        <span class="oi oi-account-logout menu-icon" aria-hidden="true"></span>
+                        <span class="menu-link-text">Deconectare</span>
+                    </a>
+                </Authorized>
+            </AuthorizeView>
 
-        <NavLink href="internal-scan" class="menu-link">
-            <span class="oi oi-document menu-icon" aria-hidden="true"></span>
-            <span class="menu-link-text">Scanare internă</span>
-        </NavLink>
-    </nav>
+            <NavLink href="profile" class="menu-link">
+                <span class="oi oi-person menu-icon" aria-hidden="true"></span>
+                <span class="menu-link-text">Profilul meu</span>
+            </NavLink>
+
+            <NavLink href="internal-scan" class="menu-link">
+                <span class="oi oi-document menu-icon" aria-hidden="true"></span>
+                <span class="menu-link-text">Scanare internă</span>
+            </NavLink>
+        </nav>
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <div class="menu-block admin-menu-block">
+                <div class="menu-section-title">Administrare</div>
+
+                <nav class="menu-links">
+                    <NavLink href="admin" class="menu-link menu-link-admin">
+                        <span class="oi oi-cloud-upload menu-icon" aria-hidden="true"></span>
+                        <span class="menu-link-text">Încărcare documente</span>
+                    </NavLink>
+                </nav>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 
     <div class="sidebar-footer">
-        <div class="sidebar-footer-label">Sistem de analiză documente</div>
-        <div class="sidebar-footer-version">Versiune interfață 1.0</div>
+        <div class="sidebar-footer-card">
+            <div class="sidebar-footer-label">Sistem de analiză</div>
+            <div class="sidebar-footer-version">Versiune interfață 1.0</div>
+        </div>
     </div>
 </div>
 
@@ -64,7 +89,6 @@
     private async Task HandleLogout()
     {
         await Auth.SignOutAsync();
-        // Redirecționează automat pe pagina de login
-        Nav.NavigateTo("/login", forceLoad: true); 
+        Nav.NavigateTo("/login", forceLoad: true);
     }
 }

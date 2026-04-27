@@ -7,61 +7,67 @@
 
 <PageTitle>Creare cont</PageTitle>
 
-<div class="auth-page">
-    <div class="auth-card">
-        <div class="auth-badge">Înregistrare utilizator</div>
-        <h1 class="auth-title">Creare cont</h1>
-        
+<div class="signup-single-page">
+    <section class="signup-single-card">
+        <div class="signup-card-top">
+            <div class="signup-page-badge">Înregistrare utilizator</div>
+
+            <h1 class="signup-page-title">Creare cont</h1>
+
+            <p class="signup-page-subtitle">
+                Completează formularul pentru a crea un cont nou și pentru a utiliza platforma de verificare a similitudinii documentelor.
+            </p>
+        </div>
+
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <div class="alert alert-danger mb-4">
+            <div class="signup-error">
                 @_error
             </div>
         }
 
         @if (!string.IsNullOrWhiteSpace(_success))
         {
-            <div class="alert alert-success mb-4 text-center">
-                <h4>@_success</h4>
-                <p class="mt-3">Vei fi redirecționat către pagina de autentificare în câteva secunde...</p>
+            <div class="signup-success">
+                <h4 class="signup-success-title">@_success</h4>
+                <p class="signup-success-text">
+                    Vei fi redirecționat automat către pagina de scanare.
+                </p>
             </div>
         }
         else
         {
-            <p class="auth-subtitle">
-                Completează formularul pentru a crea un cont nou și a utiliza platforma de scanare.
-            </p>
-
             <EditForm EditContext="_editContext" OnSubmit="HandleSubmit" Context="formContext">
                 <DataAnnotationsValidator />
 
-                <div class="auth-grid-two">
-                    <div class="mb-3">
+                <div class="signup-form-grid">
+                    <div class="signup-form-group">
                         <label class="form-label">Nume</label>
                         <InputText class="form-control" @bind-Value="_model.LastName" disabled="@_busy" />
                         <ValidationMessage For="@(() => _model.LastName)" />
                     </div>
 
-                    <div class="mb-3">
+                    <div class="signup-form-group">
                         <label class="form-label">Prenume</label>
                         <InputText class="form-control" @bind-Value="_model.FirstName" disabled="@_busy" />
                         <ValidationMessage For="@(() => _model.FirstName)" />
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="signup-form-group">
                     <label class="form-label">Email</label>
                     <InputText class="form-control" @bind-Value="_model.Email" disabled="@_busy" />
                     <ValidationMessage For="@(() => _model.Email)" />
                 </div>
 
-                <div class="mb-3">
+                <div class="signup-form-group">
                     <label class="form-label">Parolă</label>
 
                     <div class="password-field">
                         <InputText class="form-control"
                                    type="@(_showPassword ? "text" : "password")"
-                                   @bind-Value="_model.Password" disabled="@_busy" />
+                                   @bind-Value="_model.Password"
+                                   disabled="@_busy" />
 
                         <button type="button"
                                 class="password-toggle"
@@ -74,13 +80,14 @@
                     <ValidationMessage For="@(() => _model.Password)" />
                 </div>
 
-                <div class="mb-3">
+                <div class="signup-form-group">
                     <label class="form-label">Confirmă parola</label>
 
                     <div class="password-field">
                         <InputText class="form-control"
                                    type="@(_showConfirmPassword ? "text" : "password")"
-                                   @bind-Value="_model.ConfirmPassword" disabled="@_busy" />
+                                   @bind-Value="_model.ConfirmPassword"
+                                   disabled="@_busy" />
 
                         <button type="button"
                                 class="password-toggle"
@@ -100,28 +107,37 @@
                     }
                 </div>
 
-                <div class="mb-4">
+                <div class="signup-form-group">
                     <label class="form-label">Rol</label>
+
                     <InputSelect class="form-select" @bind-Value="_model.Role" disabled="@_busy">
                         <option value="">-- alege rolul --</option>
                         <option value="Student">Student</option>
                         <option value="Teacher">Profesor</option>
                     </InputSelect>
+
                     <ValidationMessage For="@(() => _model.Role)" />
                 </div>
 
-                <div class="auth-actions">
-                    <button class="btn btn-success" type="submit" disabled="@_busy">
-                        @(_busy ? "Se creează..." : "Creează cont")
+                <div class="signup-actions">
+                    <button class="btn btn-success signup-submit-btn" type="submit" disabled="@_busy">
+                        @(_busy ? "Se creează contul..." : "Creează cont")
                     </button>
+                </div>
 
-                    <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/login")' disabled="@_busy">
-                        Ai deja cont? Autentifică-te
+                <div class="signup-bottom-row">
+                    <span class="signup-small-text">Ai deja un cont?</span>
+
+                    <button class="btn btn-outline-primary"
+                            type="button"
+                            @onclick='() => Nav.NavigateTo("/login")'
+                            disabled="@_busy">
+                        Autentifică-te
                     </button>
                 </div>
             </EditForm>
         }
-    </div>
+    </section>
 </div>
 
 @code {
@@ -134,6 +150,11 @@
     private bool _showPassword;
     private bool _showConfirmPassword;
 
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_model);
+    }
+
     private void TogglePasswordVisibility()
     {
         _showPassword = !_showPassword;
@@ -142,11 +163,6 @@
     private void ToggleConfirmPasswordVisibility()
     {
         _showConfirmPassword = !_showConfirmPassword;
-    }
-
-    protected override void OnInitialized()
-    {
-        _editContext = new EditContext(_model);
     }
 
     private async Task HandleSubmit(EditContext context)
@@ -158,51 +174,91 @@
         var valid = _editContext?.Validate() ?? context.Validate();
 
         if (!valid)
+        {
             return;
+        }
+
+        if (_model.Password != _model.ConfirmPassword)
+        {
+            return;
+        }
 
         _busy = true;
 
-        var result = await Auth.SignUpAsync(
-            firstName: _model.FirstName,
-            lastName: _model.LastName,
-            email: _model.Email,
-            password: _model.Password,  
-            role: _model.Role);
-
-        // Loghează rezultatul pentru a verifica ce răspuns primește frontend-ul
-        Console.WriteLine($"Răspuns API: {result.ErrorMessage}");
-
-        if (!result.Success)
+        try
         {
-            _error = result.ErrorMessage ?? "Înregistrare eșuată.";
+            var result = await Auth.SignUpAsync(
+                firstName: _model.FirstName,
+                lastName: _model.LastName,
+                email: _model.Email,
+                password: _model.Password,
+                role: _model.Role);
+
+            if (!result.Success)
+            {
+                _error = ExtractErrorMessage(result.ErrorMessage) ?? "Înregistrare eșuată.";
+                _busy = false;
+                return;
+            }
+
+            _success = "Contul a fost creat cu succes. Se face autentificarea...";
+            StateHasChanged();
+
+            await Task.Delay(1000);
+
+            var loginResult = await Auth.SignInAsync(_model.Email, _model.Password, rememberMe: false);
+
+            if (!loginResult.Success)
+            {
+                _error = ExtractErrorMessage(loginResult.ErrorMessage)
+                    ?? "Autentificarea automată a eșuat. Te rugăm să te conectezi manual.";
+
+                _success = null;
+                _busy = false;
+                return;
+            }
+
             _busy = false;
-            return;
+            Nav.NavigateTo("/internal-scan", forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            _error = ExtractErrorMessage(ex.Message) ?? "A apărut o eroare la crearea contului.";
+            _busy = false;
+        }
+    }
+
+    private static string? ExtractErrorMessage(string? rawMessage)
+    {
+        if (string.IsNullOrWhiteSpace(rawMessage))
+        {
+            return null;
         }
 
-        // Set the success message
-        _success = "Contul a fost creat cu succes. Se face autentificarea...";
-
-        // Force the UI to re-render the success message
-        StateHasChanged();
-
-        // Small delay so the user sees the message
-        await Task.Delay(1000);
-
-        // Automatic login
-        var loginResult = await Auth.SignInAsync(_model.Email, _model.Password, rememberMe: false);
-        
-        if (!loginResult.Success)
+        try
         {
-            _error = loginResult.ErrorMessage ?? "Autentificarea automată a eșuat. Te rugăm să te conectezi manual.";
-            _success = null;
-            _busy = false;
-            return;
+            using var document = System.Text.Json.JsonDocument.Parse(rawMessage);
+
+            if (document.RootElement.TryGetProperty("errorMessage", out var errorMessage))
+            {
+                return errorMessage.GetString();
+            }
+
+            if (document.RootElement.TryGetProperty("message", out var message))
+            {
+                return message.GetString();
+            }
+
+            if (document.RootElement.TryGetProperty("error", out var error))
+            {
+                return error.GetString();
+            }
+        }
+        catch
+        {
         }
 
-        _busy = false;
-
-        // Redirect to plagiarism scan page
-        Nav.NavigateTo("/internal-scan", forceLoad: false);
+        return rawMessage;
     }
 
     private sealed class SignupModel

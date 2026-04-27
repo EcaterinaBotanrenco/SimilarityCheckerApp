@@ -1,63 +1,336 @@
 ﻿@page "/admin"
-@using Microsoft.AspNetCore.Authorization
-@using System.Net.Http.Json
 @attribute [Authorize(Roles = "Admin")]
-@inject HttpClient Http
 
-<h3>Panou Admin</h3>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using SimilarityChecker.Shared.Dto
+@using SimilarityChecker.UI.Services
 
-<AuthorizeView Roles="Admin">
-    <Authorized>
-        <p>Acesta este panoul Adminului. Aici poți atribui roluri de Admin și vizualiza utilizatori.</p>
-        <div>
-            <button class="btn btn-primary" @onclick="GetUsers">Vizualizează utilizatori</button>
+@inject IDocumentScanApiClient DocumentApi
+
+<PageTitle>Panou Admin</PageTitle>
+
+<style>
+    
+</style>
+
+<div class="admin-modern-page">
+    <section class="admin-hero">
+        <div class="admin-page-kicker">Panou administrator</div>
+
+        <h1 class="admin-page-title">Încărcare documente</h1>
+
+        <p class="admin-page-subtitle">
+            Administratorul poate importa simultan mai multe documente în sistem. Fiecare fișier este transmis
+            către server, verificat, procesat și salvat în baza de date, iar rezultatul încărcării este afișat
+            individual pentru fiecare document.
+        </p>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="admin-alert-modern admin-alert-danger-modern">
+            <span class="admin-alert-icon-modern">!</span>
+            <span>@_error</span>
         </div>
+    }
 
-        @if (users?.Count > 0)
-        {
-            <h4>Utilizatori:</h4>
-            <ul>
-                @foreach (var user in users)
+    @if (!string.IsNullOrWhiteSpace(_successMessage))
+    {
+        <div class="admin-alert-modern admin-alert-success-modern">
+            <span class="admin-alert-icon-modern">✓</span>
+            <span>@_successMessage</span>
+        </div>
+    }
+
+    <div class="admin-main-grid">
+        <section class="admin-modern-card">
+            <div class="admin-card-header">
+                <div>
+                    <div class="admin-step">Pasul 1</div>
+                    <h2 class="admin-modern-title">Selectarea documentelor</h2>
+                    <p class="admin-modern-subtitle">
+                        Alege documentele care trebuie introduse în baza de date pentru scanările interne ulterioare.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-upload-area">
+                <div class="admin-upload-title-row">
+                    <div class="admin-upload-icon-modern">
+                        <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+                    </div>
+
+                    <div>
+                        <div class="admin-upload-title-modern">Adaugă fișiere pentru import</div>
+                        <div class="admin-upload-text-modern">
+                            Formate acceptate: PDF, DOCX, TXT. Dimensiunea maximă permisă este de 20 MB per fișier.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-file-picker-modern">
+                    <label class="admin-file-picker-btn" for="adminFilesInput">
+                        <span class="oi oi-folder" aria-hidden="true"></span>
+                        Alege documentele
+                    </label>
+
+                    <span class="admin-file-picker-name">
+                        @(_selectedFiles.Count == 0
+                                                ? "Nu au fost selectate fișiere"
+                                                : $"{_selectedFiles.Count} fișiere selectate")
+                    </span>
+
+                    <InputFile id="adminFilesInput"
+                               OnChange="HandleFilesSelected"
+                               multiple
+                               class="admin-hidden-file" />
+                </div>
+
+                <div class="admin-upload-meta-modern">
+                    <span>Încărcare multiplă</span>
+                    <span>Maximum 20 MB per fișier</span>
+                </div>
+
+                @if (_selectedFiles.Count > 0)
                 {
-                    <li>
-                        @user.UserName (@user.Email)
-                        <button class="btn btn-danger btn-sm" @onclick="() => AssignAdminRole(user.Id)">Atribuie rol Admin</button>
-                    </li>
+                    <div class="admin-selected-list">
+                        <div class="admin-selected-header">
+                            Fișiere selectate
+                            <span class="admin-count-chip">@_selectedFiles.Count</span>
+                        </div>
+
+                        <div class="admin-file-list-modern">
+                            @foreach (var file in _selectedFiles)
+                            {
+                                <div class="admin-file-item-modern">
+                                    <div class="admin-file-main-modern">
+                                        <div class="admin-file-icon-small">
+                                            <span class="oi oi-document" aria-hidden="true"></span>
+                                        </div>
+
+                                        <div class="admin-file-name-modern">@file.Name</div>
+                                    </div>
+
+                                    <div class="admin-file-size-modern">@FormatSize(file.Size)</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
-            </ul>
-        }
-    </Authorized>
-    <NotAuthorized>
-        <p>Nu ai acces la această secțiune, deoarece nu ești Admin.</p>
-    </NotAuthorized>
-</AuthorizeView>
+
+                <div class="admin-upload-action">
+                    <button class="btn btn-primary admin-upload-btn-modern"
+                            @onclick="UploadFilesAsync"
+                            disabled="@(_isUploading || _selectedFiles.Count == 0)">
+                        <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+                        @(_isUploading ? "Se încarcă documentele..." : "Încarcă documentele")
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <aside class="admin-side-stack">
+            <div class="admin-side-card-modern">
+                <div class="admin-side-kicker-modern">Informații</div>
+                <h3 class="admin-side-title-modern">Import multiplu</h3>
+                <p class="admin-side-text-modern">
+                    Această secțiune este destinată administratorului și permite completarea bazei de documente
+                    utilizate ulterior pentru verificarea similitudinii.
+                </p>
+            </div>
+
+            <div class="admin-side-card-modern">
+                <div class="admin-side-kicker-modern">Recomandare</div>
+                <h3 class="admin-side-title-modern">Încarcă în loturi moderate</h3>
+                <p class="admin-side-text-modern">
+                    Pentru un timp de răspuns mai bun, este recomandat ca documentele mari să fie încărcate
+                    în grupuri mai mici, mai ales atunci când sunt selectate multe fișiere simultan.
+                </p>
+            </div>
+        </aside>
+    </div>
+
+    @if (_uploadResult is not null)
+    {
+        <section class="admin-results-card">
+            <div class="admin-card-header">
+                <div>
+                    <div class="admin-step">Pasul 2</div>
+                    <h2 class="admin-modern-title">Rezultatul încărcării</h2>
+                    <p class="admin-modern-subtitle">
+                        Rezumatul procesului de import și statusul fiecărui document transmis către sistem.
+                    </p>
+                </div>
+            </div>
+
+            <div class="admin-stats-grid-modern">
+                <div class="admin-stat-modern">
+                    <div class="admin-stat-label-modern">Total fișiere</div>
+                    <div class="admin-stat-value-modern">@_uploadResult.TotalFiles</div>
+                </div>
+
+                <div class="admin-stat-modern admin-stat-success">
+                    <div class="admin-stat-label-modern">Importate</div>
+                    <div class="admin-stat-value-modern">@_uploadResult.ImportedCount</div>
+                </div>
+
+                <div class="admin-stat-modern admin-stat-warning">
+                    <div class="admin-stat-label-modern">Omitere / erori</div>
+                    <div class="admin-stat-value-modern">@_uploadResult.SkippedCount</div>
+                </div>
+            </div>
+
+            <div class="admin-table-wrap-modern">
+                <table class="admin-table-modern">
+                    <thead>
+                        <tr>
+                            <th>Fișier</th>
+                            <th>Status</th>
+                            <th>Mesaj</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in _uploadResult.Results)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="admin-table-file-modern">
+                                        <div class="admin-table-file-icon">
+                                            <span class="oi oi-document" aria-hidden="true"></span>
+                                        </div>
+
+                                        <div class="admin-table-file-name">@item.FileName</div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @if (item.IsSuccess && item.IsDuplicate)
+                                    {
+                                        <span class="admin-status-modern admin-status-duplicate-modern">Duplicat</span>
+                                    }
+                                    else if (item.IsSuccess)
+                                    {
+                                        <span class="admin-status-modern admin-status-success-modern">Importat</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status-modern admin-status-error-modern">Eroare</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="admin-table-message-modern">@item.Message</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    }
+</div>
 
 @code {
-    private List<AppUser>? users;
+    private readonly List<IBrowserFile> _selectedFiles = new();
+    private MultipleDocumentUploadResponseDto? _uploadResult;
+    private bool _isUploading;
+    private string? _error;
+    private string? _successMessage;
 
-    private async Task GetUsers()
+    private void HandleFilesSelected(InputFileChangeEventArgs e)
     {
-        users = await Http.GetFromJsonAsync<List<AppUser>>("api/admin/users");
+        _error = null;
+        _successMessage = null;
+        _uploadResult = null;
+
+        _selectedFiles.Clear();
+        _selectedFiles.AddRange(e.GetMultipleFiles());
     }
 
-    private async Task AssignAdminRole(Guid userId)
+    private async Task UploadFilesAsync()
     {
-        var result = await Http.PostAsync($"api/admin/assign-admin/{userId}", null);
-        if (result.IsSuccessStatusCode)
+        _error = null;
+        _successMessage = null;
+        _uploadResult = null;
+        _isUploading = true;
+
+        try
         {
-            await GetUsers();
+            var uploadFiles = new List<UploadFileItemDto>();
+
+            foreach (var file in _selectedFiles)
+            {
+                await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+                using var ms = new System.IO.MemoryStream();
+                await stream.CopyToAsync(ms);
+
+                uploadFiles.Add(new UploadFileItemDto
+                {
+                    FileName = file.Name,
+                    Content = ms.ToArray()
+                });
+            }
+
+            _uploadResult = await DocumentApi.UploadMultipleDocumentsAsync(uploadFiles);
+            _successMessage = "Încărcarea documentelor s-a încheiat.";
         }
-        else
+        catch (Exception ex)
         {
-            var errorMessage = await result.Content.ReadAsStringAsync();
-            Console.WriteLine(errorMessage);
+            _error = $"Eroare la încărcare: {ExtractErrorMessage(ex.Message)}";
+        }
+        finally
+        {
+            _isUploading = false;
         }
     }
 
-    private sealed class AppUser
+    private static string FormatSize(long bytes)
     {
-        public Guid Id { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
+        if (bytes < 1024)
+        {
+            return $"{bytes} B";
+        }
+
+        if (bytes < 1024 * 1024)
+        {
+            return $"{bytes / 1024.0:F1} KB";
+        }
+
+        return $"{bytes / (1024.0 * 1024.0):F1} MB";
+    }
+
+    private static string ExtractErrorMessage(string? rawMessage)
+    {
+        if (string.IsNullOrWhiteSpace(rawMessage))
+        {
+            return "A apărut o eroare la încărcarea documentelor.";
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(rawMessage);
+
+            if (document.RootElement.TryGetProperty("errorMessage", out var errorMessage))
+            {
+                return errorMessage.GetString() ?? "A apărut o eroare la încărcarea documentelor.";
+            }
+
+            if (document.RootElement.TryGetProperty("message", out var message))
+            {
+                return message.GetString() ?? "A apărut o eroare la încărcarea documentelor.";
+            }
+
+            if (document.RootElement.TryGetProperty("error", out var error))
+            {
+                return error.GetString() ?? "A apărut o eroare la încărcarea documentelor.";
+            }
+        }
+        catch
+        {
+        }
+
+        return rawMessage;
     }
 }

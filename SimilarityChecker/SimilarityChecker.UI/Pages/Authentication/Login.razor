@@ -7,32 +7,35 @@
 
 <PageTitle>Autentificare</PageTitle>
 
-<div class="auth-page">
-    <div class="auth-card auth-card-sm">
-        <div class="auth-badge">Acces în sistem</div>
-        <h1 class="auth-title">Autentificare</h1>
-        <p class="auth-subtitle">
-            Introdu datele contului pentru a accesa profilul tău și rapoartele generate.
-        </p>
+
+<div class="login-single-page">
+    <section class="login-single-card">
+        <div class="login-card-top">
+            <div class="login-page-badge">Acces în sistem</div>
+            <h1 class="login-page-title">Autentificare</h1>
+            <p class="login-page-subtitle">
+                Introdu datele contului pentru a accesa profilul tău, scanările efectuate
+                și rapoartele generate în platformă.
+            </p>
+        </div>
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <div class="alert alert-danger mb-4">
+            <div class="login-error">
                 @_error
             </div>
         }
 
         <EditForm Model="_model" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
-            <ValidationSummary />
 
-            <div class="mb-3">
+            <div class="login-form-group">
                 <label class="form-label">Email</label>
                 <InputText class="form-control" @bind-Value="_model.Email" />
                 <ValidationMessage For="@(() => _model.Email)" />
             </div>
 
-            <div class="mb-3">
+            <div class="login-form-group">
                 <label class="form-label">Parolă</label>
 
                 <div class="password-field">
@@ -50,29 +53,33 @@
                 <ValidationMessage For="@(() => _model.Password)" />
             </div>
 
-            <div class="login-options-row">
-                <div class="elemnts-inline ">
-                    <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/forgot-password")'>
-                        Ai uitat parola?
-                    </button>
-                </div>
-                <div class="login-actions-right">
-                    <button class="btn btn-primary" type="submit" disabled="@_busy">
-                        @(_busy ? "Se autentifică..." : "Intră în cont")
-                    </button>
-
-                    <divclass ="login-signup-hint">
-                        <span class="sc-muted">Nu ai cont? </span>
-                        <button class="btn btn-link auth-link p-0" type="button" @onclick='() => Nav.NavigateTo("/signup")'>
-                            Creează unul
-                        </button>
-                    </divclass>
-                </div>
+            <div class="login-links-row">
+                <button class="btn btn-link auth-link p-0 login-link-button"
+                        type="button"
+                        @onclick='() => Nav.NavigateTo("/forgot-password")'>
+                    Ai uitat parola?
+                </button>
             </div>
 
-            
+            <div class="login-main-action">
+                <button class="btn btn-primary login-submit-btn"
+                        type="submit"
+                        disabled="@_busy">
+                    @(_busy ? "Se autentifică..." : "Intră în cont")
+                </button>
+            </div>
+
+            <div class="login-bottom-row">
+                <span class="login-small-text">Nu ai încă un cont?</span>
+
+                <button class="btn btn-outline-primary"
+                        type="button"
+                        @onclick='() => Nav.NavigateTo("/signup")'>
+                    Creează cont
+                </button>
+            </div>
         </EditForm>
-    </div>
+    </section>
 </div>
 
 @code {
@@ -80,17 +87,18 @@
     private string? _error;
     private bool _busy;
     private string? _returnUrl;
+    private bool _showPassword;
 
     protected override void OnInitialized()
     {
         var uri = Nav.ToAbsoluteUri(Nav.Uri);
+
         if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)
             .TryGetValue("returnUrl", out var rv))
         {
             _returnUrl = rv.ToString();
         }
     }
-    private bool _showPassword;
 
     private void TogglePasswordVisibility()
     {
@@ -108,7 +116,7 @@
 
             if (!result.Success)
             {
-                _error = result.ErrorMessage ?? "Autentificare eșuată.";
+                _error = ExtractErrorMessage(result.ErrorMessage);
                 return;
             }
 
@@ -126,6 +134,40 @@
         {
             _busy = false;
         }
+    }
+
+    private static string ExtractErrorMessage(string? rawMessage)
+    {
+        if (string.IsNullOrWhiteSpace(rawMessage))
+        {
+            return "Autentificare eșuată.";
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(rawMessage);
+
+            if (document.RootElement.TryGetProperty("errorMessage", out var errorMessage))
+            {
+                return errorMessage.GetString() ?? "Autentificare eșuată.";
+            }
+
+            if (document.RootElement.TryGetProperty("message", out var message))
+            {
+                return message.GetString() ?? "Autentificare eșuată.";
+            }
+
+            if (document.RootElement.TryGetProperty("error", out var error))
+            {
+                return error.GetString() ?? "Autentificare eșuată.";
+            }
+        }
+        catch
+        {
+            // Dacă mesajul nu este JSON, îl afișăm ca text simplu.
+        }
+
+        return rawMessage;
     }
 
     private sealed class LoginModel

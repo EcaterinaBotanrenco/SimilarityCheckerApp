@@ -1,40 +1,8 @@
 [
   {
     "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
-    "Method": "AssignAdminRole",
-    "RelativePath": "api/admin/assign-admin/{userId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "userId",
-        "Type": "System.Guid",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
-    "Method": "UploadDocument",
-    "RelativePath": "api/admin/upload-document",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "file",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "SimilarityChecker.Api.Controllers.AdminController",
-    "Method": "GetUsers",
-    "RelativePath": "api/admin/users",
+    "Method": "Ping",
+    "RelativePath": "api/admin/ping",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -268,6 +236,32 @@
     "ReturnTypes": [
       {
         "Type": "SimilarityChecker.Api.Models.InternalScanStartResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SimilarityChecker.Api.Controllers.InternalScanController",
+    "Method": "ScanText",
+    "RelativePath": "api/internal-scan/text",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "SimilarityChecker.Shared.Dto.TextScanRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SimilarityChecker.Shared.Dto.InternalScanReportDto",
         "MediaTypes": [
           "text/plain",
           "application/json",

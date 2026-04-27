@@ -12,5 +12,10 @@ public interface IInternalScanService
         Guid referenceDocumentId, 
         double threshold, 
         CancellationToken ct = default);
+    Task<InternalScanReportDto> ScanTextAsync(
+        string title,
+        string text,
+        double threshold,
+        CancellationToken ct = default);
 
 }

@@ -7,351 +7,362 @@
 
 <LoginRequiredModal Visible="@_showLoginModal" OnClose="@CloseLoginModal" />
 
-<div class="page-header">
-    <h1 class="page-title">Scanare internă</h1>
-    <p class="page-subtitle">
-        Încarcă un document și verifică similitudinea lui cu documentele existente în baza de date
-        sau compară direct două documente între ele.
-    </p>
-</div>
 
-@if (!string.IsNullOrWhiteSpace(_error))
-{
-    <div class="alert alert-danger mb-3">@_error</div>
-}
+<div class="scan-page">
+    <section class="scan-hero">
+        <div class="scan-kicker">Scanare internă</div>
+        <h1 class="scan-title">Verificarea similitudinii documentelor</h1>
+        <p class="scan-subtitle">
+            Încarcă un document, introdu un text manual sau compară direct două documente între ele.
+            Rezultatul poate fi vizualizat în interfață, iar pentru documente poate fi descărcat sub formă de raport PDF.
+        </p>
+    </section>
 
-<div class="sc-grid">
-    <section class="sc-card">
-        <div class="sc-card-header">
-            <div>
-                <div class="sc-kicker">Pasul 1</div>
-                <div class="sc-card-title">Încarcă documentele</div>
-            </div>
-        </div>
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="scan-error">@_error</div>
+    }
 
-        <div class="mb-3">
-            <button class="btn btn-outline-primary sc-btn"
-                    @onclick="ToggleCompareMode"
-                    disabled="@_busy">
-                @(_compareMode ? "Revino la scanare simplă" : "Compară două documente")
-            </button>
-        </div>
-
-        <div class="sc-upload-box">
-            <label class="form-label fw-semibold">Document analizat</label>
-
-            <div class="sc-file-picker">
-                <label class="sc-file-picker-btn" for="primaryFileInput">
-                    Alege fișierul
-                </label>
-
-                <span class="sc-file-picker-name">
-                    @(_selectedFile?.Name ?? "Nu a fost selectat niciun fișier")
-                </span>
-
-                <InputFile id="primaryFileInput"
-                           OnChange="HandlePrimaryFileChange"
-                           class="sc-hidden-file-input" />
+    <div class="scan-grid">
+        <section class="scan-card">
+            <div class="scan-card-header">
+                <div>
+                    <div class="scan-step">Pasul 1</div>
+                    <h2 class="scan-card-title">@GetInputSectionTitle()</h2>
+                    <p class="scan-card-subtitle">
+                        @GetInputSectionSubtitle()
+                    </p>
+                </div>
             </div>
 
-            <div class="sc-upload-meta">
-                <span>Formate acceptate: PDF / DOCX / TXT</span>
-                <span>Dimensiune maximă: 20 MB</span>
+            <div class="scan-mode-tabs">
+                <button type="button"
+                        class="scan-mode-tab @(_scanMode == ScanMode.File ? "active" : "")"
+                        @onclick="SetFileMode"
+                        disabled="@_busy">
+                    <span class="oi oi-document" aria-hidden="true"></span>
+                    Fișier
+                </button>
+
+                <button type="button"
+                        class="scan-mode-tab @(_scanMode == ScanMode.Text ? "active" : "")"
+                        @onclick="SetTextMode"
+                        disabled="@_busy">
+                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                    Text introdus
+                </button>
+
+                <button type="button"
+                        class="scan-mode-tab @(_scanMode == ScanMode.Compare ? "active" : "")"
+                        @onclick="SetCompareMode"
+                        disabled="@_busy">
+                    <span class="oi oi-loop-circular" aria-hidden="true"></span>
+                    Comparare
+                </button>
             </div>
 
-            @if (_selectedFile is not null)
+            @if (!_textMode)
             {
-                <div class="sc-file-pill">
-                    <span class="sc-dot"></span>
-                    <strong>@_selectedFile.Name</strong>
-                    <span class="sc-muted">(@FormatSize(_selectedFile.Size))</span>
+                <div class="scan-upload-box">
+                    <div class="scan-upload-title-row">
+                        <div class="scan-upload-icon">
+                            <span class="oi oi-document" aria-hidden="true"></span>
+                        </div>
+                        <div>
+                            <div class="scan-upload-title">Document analizat</div>
+                            <div class="scan-upload-subtitle">Documentul principal care va fi verificat.</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-file-picker">
+                        <label class="scan-file-btn" for="primaryFileInput">
+                            <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+                            Alege fișierul
+                        </label>
+
+                        <span class="scan-file-name">
+                            @(_selectedFile?.Name ?? "Nu a fost selectat niciun fișier")
+                        </span>
+
+                        <InputFile id="primaryFileInput"
+                                   OnChange="HandlePrimaryFileChange"
+                                   class="scan-hidden-file" />
+                    </div>
+
+                    <div class="scan-upload-meta">
+                        <span>Formate acceptate: PDF / DOCX / TXT</span>
+                        <span>Dimensiune maximă: 20 MB</span>
+                    </div>
+
+                    @if (_selectedFile is not null)
+                    {
+                        <div class="scan-file-pill">
+                            <span class="scan-dot"></span>
+                            <strong>@_selectedFile.Name</strong>
+                            <span class="scan-muted">(@FormatSize(_selectedFile.Size))</span>
+                        </div>
+                    }
                 </div>
-            }
-        </div>
 
-        @if (_compareMode)
-        {
-            <div class="sc-upload-box mt-3">
-                <label class="form-label fw-semibold">Document de referință</label>
-
-                <div class="sc-file-picker">
-                    <label class="sc-file-picker-btn" for="referenceFileInput">
-                        Alege fișierul
-                    </label>
-
-                    <span class="sc-file-picker-name">
-                        @(_referenceFile?.Name ?? "Nu a fost selectat niciun fișier")
-                    </span>
-
-                    <InputFile id="referenceFileInput"
-                               OnChange="HandleReferenceFileChange"
-                               class="sc-hidden-file-input" />
-                </div>
-
-                <div class="sc-upload-meta">
-                    <span>Formate acceptate: PDF / DOCX / TXT</span>
-                    <span>Dimensiune maximă: 20 MB</span>
-                </div>
-
-                @if (_referenceFile is not null)
+                @if (_compareMode)
                 {
-                    <div class="sc-file-pill">
-                        <span class="sc-dot"></span>
-                        <strong>@_referenceFile.Name</strong>
-                        <span class="sc-muted">(@FormatSize(_referenceFile.Size))</span>
+                    <div class="scan-upload-box">
+                        <div class="scan-upload-title-row">
+                            <div class="scan-upload-icon">
+                                <span class="oi oi-document" aria-hidden="true"></span>
+                            </div>
+                            <div>
+                                <div class="scan-upload-title">Document de referință</div>
+                                <div class="scan-upload-subtitle">Documentul cu care se va face comparația directă.</div>
+                            </div>
+                        </div>
+
+                        <div class="scan-file-picker">
+                            <label class="scan-file-btn" for="referenceFileInput">
+                                <span class="oi oi-cloud-upload" aria-hidden="true"></span>
+                                Alege fișierul
+                            </label>
+
+                            <span class="scan-file-name">
+                                @(_referenceFile?.Name ?? "Nu a fost selectat niciun fișier")
+                            </span>
+
+                            <InputFile id="referenceFileInput"
+                                       OnChange="HandleReferenceFileChange"
+                                       class="scan-hidden-file" />
+                        </div>
+
+                        <div class="scan-upload-meta">
+                            <span>Formate acceptate: PDF / DOCX / TXT</span>
+                            <span>Dimensiune maximă: 20 MB</span>
+                        </div>
+
+                        @if (_referenceFile is not null)
+                        {
+                            <div class="scan-file-pill">
+                                <span class="scan-dot"></span>
+                                <strong>@_referenceFile.Name</strong>
+                                <span class="scan-muted">(@FormatSize(_referenceFile.Size))</span>
+                            </div>
+                        }
                     </div>
                 }
-            </div>
-        }
 
-        @if (_uploadResult is not null && !_compareMode)
-        {
-            <div class="sc-success">
-                <div><strong>Încărcare reușită</strong></div>
-                <div class="sc-muted">Fișier: @_uploadResult.FileName</div>
-                <div class="sc-muted">Cuvinte identificate: @_uploadResult.WordCount</div>
-            </div>
-        }
+                @if (_uploadResult is not null && !_compareMode)
+                {
+                    <div class="scan-success">
+                        <div><strong>Încărcare reușită</strong></div>
+                        <div class="scan-muted">Fișier: @_uploadResult.FileName</div>
+                        <div class="scan-muted">Cuvinte identificate: @_uploadResult.WordCount</div>
+                    </div>
+                }
 
-        @if (_compareMode && _primaryUploadResult is not null && _referenceUploadResult is not null)
-        {
-            <div class="sc-success">
-                <div><strong>Ambele documente au fost încărcate cu succes</strong></div>
-                <div class="sc-muted">Document analizat: @_primaryUploadResult.FileName</div>
-                <div class="sc-muted">Document de referință: @_referenceUploadResult.FileName</div>
-            </div>
-        }
-    </section>
+                @if (_compareMode && _primaryUploadResult is not null && _referenceUploadResult is not null)
+                {
+                    <div class="scan-success">
+                        <div><strong>Ambele documente au fost încărcate cu succes</strong></div>
+                        <div class="scan-muted">Document analizat: @_primaryUploadResult.FileName</div>
+                        <div class="scan-muted">Document de referință: @_referenceUploadResult.FileName</div>
+                    </div>
+                }
+            }
 
-    <section class="sc-card">
-        <div class="sc-card-header">
-            <div>
-                <div class="sc-kicker">Pasul 2</div>
-                <div class="sc-card-title">Rulează scanarea</div>
-            </div>
-        </div>
+            @if (_textMode)
+            {
+                <div class="scan-text-area-card">
+                    <textarea class="scan-textarea"
+                              placeholder="Introdu sau lipește textul care trebuie verificat..."
+                              @bind="_manualText"
+                              @bind:event="oninput"
+                              disabled="@_busy">
+                        </textarea>
 
-        <div class="sc-row">
-            <div class="sc-col sc-actions">
-                <button class="btn btn-success sc-btn"
-                        @onclick="StartScan"
-                        disabled="@(!CanStartScan() || _busy)">
-                    @(_busy ? "Se procesează..." : "Începe scanarea")
-                </button>
+                    <div class="scan-text-footer">
+                        <div class="scan-text-meta">
+                            Cuvinte: <strong>@GetManualTextWordCount()</strong> ·
+                            Caractere: <strong>@GetManualTextCharacterCount()</strong>
+                        </div>
 
-                <button class="btn btn-outline-secondary sc-btn"
-                        @onclick="LoadReport"
-                        disabled="@(_busy || !CanReloadReport())">
-                    Reîncarcă raportul
-                </button>
+                        <div class="scan-text-actions">
+                            <button type="button"
+                                    class="btn btn-outline-primary scan-text-btn"
+                                    @onclick="LoadSampleText"
+                                    disabled="@_busy">
+                                <span class="oi oi-document" aria-hidden="true"></span>
+                                Text exemplu
+                            </button>
 
-                <button class="btn btn-outline-dark sc-btn"
-                        @onclick="DownloadPdf"
-                        disabled="@(_busy || !CanDownloadPdf())">
-                    Descarcă raportul PDF
-                </button>
-            </div>
-        </div>
-
-        @if (_busy)
-        {
-            <div class="sc-processing">
-                @GetPhaseText(_phase)
-            </div>
-        }
-
-        @if (_scanStart is not null && !_compareMode)
-        {
-            <div class="alert alert-info mt-3 mb-0">
-                Scanare finalizată. Documente comparate: <strong>@_scanStart.ComparedDocuments</strong>
-            </div>
-        }
-
-        @if (_compareMode && _compareReport is not null)
-        {
-            <div class="alert alert-info mt-3 mb-0">
-                Comparația dintre cele două documente a fost finalizată cu succes.
-            </div>
-        }
-    </section>
-</div>
-
-@if (!_compareMode && _report is not null)
-{
-    var overall = GetOverallPercent(_report);
-
-    <div class="sc-card mt-4">
-        <div class="sc-card-header sc-header-split">
-            <div>
-                <div class="sc-kicker">Rezumat</div>
-                <div class="sc-card-title">Nivel de similitudine</div>
-            </div>
-            <div class="sc-muted">
-                Generat la: @_report.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
-            </div>
-        </div>
-
-        <div class="sc-summary">
-            <div class="sc-donut-wrap">
-                <div class="sc-donut tri-donut"
-                     style="@BuildDonutStyle(_report.ExactPercent, _report.ParaphrasePercent)">
-                    <div class="sc-donut-center">
-                        <div class="sc-donut-value">@overall%</div>
-                        <div class="sc-donut-label">conținut plagiat</div>
+                            <button type="button"
+                                    class="btn btn-outline-secondary scan-text-btn"
+                                    @onclick="ClearManualText"
+                                    disabled="@_busy || string.IsNullOrWhiteSpace(_manualText)">
+                                <span class="oi oi-trash" aria-hidden="true"></span>
+                                Curăță textul
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="sc-donut-sub">
-                    <div class="sc-badge @GetBadgeClass(overall)">@GetBadgeText(overall)</div>
+                <div class="scan-text-note">
+                    Textul introdus manual va fi comparat cu documentele existente în baza de date.
+                    Textul nu este încărcat ca document separat și nu este salvat permanent.
+                </div>
+            }
+        </section>
 
-                    <div class="sc-legend mt-2">
-                        <div class="sc-legend-item">
-                            <span class="sc-legend-dot sc-legend-dot-exact"></span>
+        <section class="scan-card">
+            <div class="scan-card-header">
+                <div>
+                    <div class="scan-step">Pasul 2</div>
+                    <h2 class="scan-card-title">Rulează analiza</h2>
+                    <p class="scan-card-subtitle">
+                        După introducerea datelor, pornește verificarea și consultă rezultatul obținut.
+                    </p>
+                </div>
+            </div>
+
+            <div class="scan-actions">
+                <button class="btn btn-success scan-action-btn"
+                        @onclick="StartScan"
+                        disabled="@(!CanStartScan() || _busy)">
+                    <span class="oi oi-media-play" aria-hidden="true"></span>
+                    @(_busy ? "Se procesează..." : GetStartButtonText())
+                </button>
+
+                @if (!_textMode)
+                {
+                    <button class="btn btn-outline-secondary scan-action-btn"
+                            @onclick="LoadReport"
+                            disabled="@(_busy || !CanReloadReport())">
+                        <span class="oi oi-reload" aria-hidden="true"></span>
+                        Reîncarcă raportul
+                    </button>
+
+                    <button class="btn btn-outline-dark scan-action-btn"
+                            @onclick="DownloadPdf"
+                            disabled="@(_busy || !CanDownloadPdf())">
+                        <span class="oi oi-cloud-download" aria-hidden="true"></span>
+                        Descarcă raportul PDF
+                    </button>
+                }
+            </div>
+
+
+            @if (_busy)
+            {
+                <div class="scan-processing">
+                    @GetPhaseText(_phase)
+                </div>
+            }
+
+            @if (_scanStart is not null && !_compareMode && !_textMode)
+            {
+                <div class="scan-info-message">
+                    Scanare finalizată. Documente comparate:
+                    <strong>@_scanStart.ComparedDocuments</strong>
+                </div>
+            }
+
+            @if (_textMode && _textReport is not null)
+            {
+                <div class="scan-info-message">
+                    Textul introdus manual a fost verificat cu succes.
+                </div>
+            }
+
+            @if (_compareMode && _compareReport is not null)
+            {
+                <div class="scan-info-message">
+                    Comparația dintre cele două documente a fost finalizată cu succes.
+                </div>
+            }
+        </section>
+    </div>
+
+    @if (!_compareMode && !_textMode && _report is not null)
+    {
+        var overall = GetOverallPercent(_report);
+
+        <section class="scan-result-card">
+            <div class="scan-result-header">
+                <div>
+                    <div class="scan-step">Rezumat</div>
+                    <h2 class="scan-card-title">Nivel de similitudine</h2>
+                    <p class="scan-card-subtitle">
+                        Rezultatul scanării interne pe baza documentelor existente în sistem.
+                    </p>
+                </div>
+
+                <div class="scan-result-date">
+                    Generat la: @_report.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
+                </div>
+            </div>
+
+            <div class="scan-summary">
+                <div class="scan-donut-wrap">
+                    <div class="scan-donut"
+                         style="@BuildDonutStyle(_report.ExactPercent, _report.ParaphrasePercent)">
+                        <div class="scan-donut-center">
+                            <div class="scan-donut-value">@overall%</div>
+                            <div class="scan-donut-label">conținut plagiat</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-badge @GetBadgeClass(overall)">
+                        @GetBadgeText(overall)
+                    </div>
+
+                    <div class="scan-legend">
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-exact"></span>
                             <span>Exact: <strong>@_report.ExactPercent%</strong></span>
                         </div>
-                        <div class="sc-legend-item">
-                            <span class="sc-legend-dot sc-legend-dot-para"></span>
+
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-para"></span>
                             <span>Parafrazat: <strong>@_report.ParaphrasePercent%</strong></span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="sc-results">
-                <div class="sc-results-title">Top documente similare</div>
+                <div>
+                    <div class="scan-results-title">Top documente similare</div>
 
-                @if (_report.Hits.Count == 0)
-                {
-                    <div class="alert alert-warning mb-0">
-                        Nu s-au găsit documente similare peste pragul stabilit.
-                    </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Document comparat</th>
-                                    <th style="width: 240px;">Similitudine</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var hit in _report.Hits.OrderByDescending(x => x.SimilarityScore).Take(10))
-                                {
-                                    var p = (int)Math.Round(hit.SimilarityScore * 100);
-
-                                    <tr>
-                                        <td>@hit.ComparedFileName</td>
-                                        <td>
-                                            <div class="progress" style="height: 18px; border-radius: 999px;">
-                                                <div class="progress-bar" role="progressbar" style="width:@p%">
-                                                    @p%
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-}
-
-@if (_compareMode && _compareReport is not null)
-{
-    var overall = GetOverallPercent(_compareReport);
-    var comparedDocName = _compareReport.Hits.FirstOrDefault()?.ComparedFileName
-        ?? (_referenceUploadResult?.FileName ?? "Document necunoscut");
-
-    <div class="sc-card mt-4">
-        <div class="sc-card-header sc-header-split">
-            <div>
-                <div class="sc-kicker">Rezumat comparație</div>
-                <div class="sc-card-title">Comparare document la document</div>
-            </div>
-            <div class="sc-muted">
-                Generat la: @_compareReport.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
-            </div>
-        </div>
-
-        <div class="sc-summary">
-            <div class="sc-donut-wrap">
-                <div class="sc-donut tri-donut"
-                     style="@BuildDonutStyle(_compareReport.ExactPercent, _compareReport.ParaphrasePercent)">
-                    <div class="sc-donut-center">
-                        <div class="sc-donut-value">@overall%</div>
-                        <div class="sc-donut-label">conținut plagiat</div>
-                    </div>
-                </div>
-
-                <div class="sc-donut-sub">
-                    <div class="sc-badge @GetBadgeClass(overall)">@GetBadgeText(overall)</div>
-
-                    <div class="sc-legend mt-2">
-                        <div class="sc-legend-item">
-                            <span class="sc-legend-dot sc-legend-dot-exact"></span>
-                            <span>Exact: <strong>@_compareReport.ExactPercent%</strong></span>
-                        </div>
-                        <div class="sc-legend-item">
-                            <span class="sc-legend-dot sc-legend-dot-para"></span>
-                            <span>Parafrazat: <strong>@_compareReport.ParaphrasePercent%</strong></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sc-results">
-                <div class="sc-results-title">Informații despre comparație</div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="border rounded p-3 h-100 bg-light">
-                            <div class="sc-muted mb-1">Document analizat</div>
-                            <div><strong>@(_primaryUploadResult?.FileName ?? _selectedFile?.Name ?? "Necunoscut")</strong></div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="border rounded p-3 h-100 bg-light">
-                            <div class="sc-muted mb-1">Document de referință</div>
-                            <div><strong>@comparedDocName</strong></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <div class="sc-results-title">Rezultatul comparației</div>
-
-                    @if (_compareReport.Hits.Count == 0)
+                    @if (_report.Hits.Count == 0)
                     {
-                        <div class="alert alert-warning mb-0">
-                            Nu a fost generat niciun rezultat peste pragul stabilit pentru comparația dintre cele două documente.
+                        <div class="scan-empty">
+                            Nu s-au găsit documente similare peste pragul stabilit.
                         </div>
                     }
                     else
                     {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                        <div class="scan-table-wrap">
+                            <table class="scan-table">
                                 <thead>
                                     <tr>
-                                        <th>Document de referință</th>
-                                        <th style="width: 240px;">Similitudine</th>
+                                        <th>Document comparat</th>
+                                        <th style="width: 260px;">Similitudine</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    @foreach (var hit in _compareReport.Hits.OrderByDescending(x => x.SimilarityScore))
+                                    @foreach (var hit in _report.Hits.OrderByDescending(x => x.SimilarityScore).Take(10))
                                     {
                                         var p = (int)Math.Round(hit.SimilarityScore * 100);
 
                                         <tr>
-                                            <td>@hit.ComparedFileName</td>
                                             <td>
-                                                <div class="progress" style="height: 18px; border-radius: 999px;">
-                                                    <div class="progress-bar" role="progressbar" style="width:@p%">
+                                                <div class="scan-file-cell">
+                                                    <div class="scan-file-icon">
+                                                        <span class="oi oi-document" aria-hidden="true"></span>
+                                                    </div>
+                                                    <div class="scan-table-file-name">@hit.ComparedFileName</div>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="scan-progress">
+                                                    <div class="scan-progress-bar" style="width:@p%">
                                                         @p%
                                                     </div>
                                                 </div>
@@ -364,18 +375,246 @@
                     }
                 </div>
             </div>
-        </div>
-    </div>
-}
+        </section>
+    }
+
+    @if (_textMode && _textReport is not null)
+    {
+        var overall = GetOverallPercent(_textReport);
+
+        <section class="scan-result-card">
+            <div class="scan-result-header">
+                <div>
+                    <div class="scan-step">Rezumat text</div>
+                    <h2 class="scan-card-title">Rezultatul verificării textului introdus</h2>
+                    <p class="scan-card-subtitle">
+                        Textul introdus manual a fost comparat cu documentele existente în baza de date.
+                    </p>
+                </div>
+
+                <div class="scan-result-date">
+                    Generat la: @_textReport.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
+                </div>
+            </div>
+
+            <div class="scan-summary">
+                <div class="scan-donut-wrap">
+                    <div class="scan-donut"
+                         style="@BuildDonutStyle(_textReport.ExactPercent, _textReport.ParaphrasePercent)">
+                        <div class="scan-donut-center">
+                            <div class="scan-donut-value">@overall%</div>
+                            <div class="scan-donut-label">scor de similitudine</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-badge @GetBadgeClass(overall)">
+                        @GetBadgeText(overall)
+                    </div>
+
+                    <div class="scan-legend">
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-exact"></span>
+                            <span>Exact: <strong>@_textReport.ExactPercent%</strong></span>
+                        </div>
+
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-para"></span>
+                            <span>Parafrazat: <strong>@_textReport.ParaphrasePercent%</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="scan-results-title">Documente similare identificate</div>
+
+                    @if (_textReport.Hits.Count == 0)
+                    {
+                        <div class="scan-empty">
+                            Nu s-au găsit documente similare peste pragul stabilit.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="scan-table-wrap">
+                            <table class="scan-table">
+                                <thead>
+                                    <tr>
+                                        <th>Document comparat</th>
+                                        <th style="width: 260px;">Similitudine</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var hit in _textReport.Hits.OrderByDescending(x => x.SimilarityScore).Take(10))
+                                    {
+                                        var p = (int)Math.Round(hit.SimilarityScore * 100);
+
+                                        <tr>
+                                            <td>
+                                                <div class="scan-file-cell">
+                                                    <div class="scan-file-icon">
+                                                        <span class="oi oi-document" aria-hidden="true"></span>
+                                                    </div>
+                                                    <div class="scan-table-file-name">@hit.ComparedFileName</div>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="scan-progress">
+                                                    <div class="scan-progress-bar" style="width:@p%">
+                                                        @p%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    @if (_compareMode && _compareReport is not null)
+    {
+        var overall = GetOverallPercent(_compareReport);
+        var comparedDocName = _compareReport.Hits.FirstOrDefault()?.ComparedFileName
+        ?? (_referenceUploadResult?.FileName ?? "Document necunoscut");
+
+        <section class="scan-result-card">
+            <div class="scan-result-header">
+                <div>
+                    <div class="scan-step">Rezumat comparație</div>
+                    <h2 class="scan-card-title">Comparare document la document</h2>
+                    <p class="scan-card-subtitle">
+                        Rezultatul comparației directe dintre documentul analizat și documentul de referință.
+                    </p>
+                </div>
+
+                <div class="scan-result-date">
+                    Generat la: @_compareReport.GeneratedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")
+                </div>
+            </div>
+
+            <div class="scan-summary">
+                <div class="scan-donut-wrap">
+                    <div class="scan-donut"
+                         style="@BuildDonutStyle(_compareReport.ExactPercent, _compareReport.ParaphrasePercent)">
+                        <div class="scan-donut-center">
+                            <div class="scan-donut-value">@overall%</div>
+                            <div class="scan-donut-label">conținut plagiat</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-badge @GetBadgeClass(overall)">
+                        @GetBadgeText(overall)
+                    </div>
+
+                    <div class="scan-legend">
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-exact"></span>
+                            <span>Exact: <strong>@_compareReport.ExactPercent%</strong></span>
+                        </div>
+
+                        <div class="scan-legend-item">
+                            <span class="scan-legend-dot scan-legend-para"></span>
+                            <span>Parafrazat: <strong>@_compareReport.ParaphrasePercent%</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="scan-results-title">Informații despre comparație</div>
+
+                    <div class="scan-compare-info-grid">
+                        <div class="scan-compare-info">
+                            <div class="scan-compare-label">Document analizat</div>
+                            <div class="scan-compare-value">
+                                @(_primaryUploadResult?.FileName ?? _selectedFile?.Name ?? "Necunoscut")
+                            </div>
+                        </div>
+
+                        <div class="scan-compare-info">
+                            <div class="scan-compare-label">Document de referință</div>
+                            <div class="scan-compare-value">@comparedDocName</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-results-title">Rezultatul comparației</div>
+
+                    @if (_compareReport.Hits.Count == 0)
+                    {
+                        <div class="scan-empty">
+                            Nu a fost generat niciun rezultat peste pragul stabilit pentru comparația dintre cele două documente.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="scan-table-wrap">
+                            <table class="scan-table">
+                                <thead>
+                                    <tr>
+                                        <th>Document de referință</th>
+                                        <th style="width: 260px;">Similitudine</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var hit in _compareReport.Hits.OrderByDescending(x => x.SimilarityScore))
+                                    {
+                                        var p = (int)Math.Round(hit.SimilarityScore * 100);
+
+                                        <tr>
+                                            <td>
+                                                <div class="scan-file-cell">
+                                                    <div class="scan-file-icon">
+                                                        <span class="oi oi-document" aria-hidden="true"></span>
+                                                    </div>
+                                                    <div class="scan-table-file-name">@hit.ComparedFileName</div>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="scan-progress">
+                                                    <div class="scan-progress-bar" style="width:@p%">
+                                                        @p%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+</div>
 
 @code {
-    private enum UiPhase { None, Upload, UploadReference, Scan, Report }
+    private enum UiPhase { None, Upload, UploadReference, Scan, Report, TextScan }
+
+    private enum ScanMode
+    {
+        File,
+        Text,
+        Compare
+    }
 
     private UiPhase _phase = UiPhase.None;
+    private ScanMode _scanMode = ScanMode.File;
+
     private bool _busy;
     private string? _error;
 
-    private bool _compareMode;
+    private bool _compareMode => _scanMode == ScanMode.Compare;
+    private bool _textMode => _scanMode == ScanMode.Text;
+
+    private string _manualText = string.Empty;
 
     private IBrowserFile? _selectedFile;
     private IBrowserFile? _referenceFile;
@@ -387,12 +626,40 @@
     private InternalScanStartResponseDto? _scanStart;
     private InternalScanReportDto? _report;
     private InternalScanReportDto? _compareReport;
+    private InternalScanReportDto? _textReport;
 
     private bool _showLoginModal;
 
-    private void ToggleCompareMode()
+    private void SetFileMode()
     {
-        _compareMode = !_compareMode;
+        if (_scanMode == ScanMode.File)
+        {
+            return;
+        }
+
+        _scanMode = ScanMode.File;
+        ResetState();
+    }
+
+    private void SetTextMode()
+    {
+        if (_scanMode == ScanMode.Text)
+        {
+            return;
+        }
+
+        _scanMode = ScanMode.Text;
+        ResetState();
+    }
+
+    private void SetCompareMode()
+    {
+        if (_scanMode == ScanMode.Compare)
+        {
+            return;
+        }
+
+        _scanMode = ScanMode.Compare;
         ResetState();
     }
 
@@ -402,12 +669,15 @@
         if (paraphrasePercent < 0) paraphrasePercent = 0;
 
         var total = exactPercent + paraphrasePercent;
+
         if (total > 100)
         {
             var overflow = total - 100;
 
             if (paraphrasePercent >= overflow)
+            {
                 paraphrasePercent -= overflow;
+            }
             else
             {
                 overflow -= paraphrasePercent;
@@ -421,9 +691,9 @@
 
         return
             $"background: conic-gradient(" +
-            $"#dc3545 0% {exactEnd}%, " +
-            $"#f59f00 {exactEnd}% {paraEnd}%, " +
-            $"#e9edf3 {paraEnd}% 100%);";
+            $"#5B5BD6 0% {exactEnd}%, " +
+            $"#7CC6F8 {exactEnd}% {paraEnd}%, " +
+            $"#E8EEF7 {paraEnd}% 100%);";
     }
 
     private async Task StartScan()
@@ -439,16 +709,26 @@
             return;
         }
 
-        if (_compareMode)
+        if (_textMode)
+        {
+            await RunTextScanAsync();
+        }
+        else if (_compareMode)
+        {
             await RunCompareAsync();
+        }
         else
+        {
             await RunScanAsync();
+        }
     }
 
     private async Task RunScanAsync()
     {
         if (_selectedFile is null)
+        {
             return;
+        }
 
         try
         {
@@ -466,10 +746,11 @@
             _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
 
             _compareReport = null;
+            _textReport = null;
         }
         catch (Exception ex)
         {
-            _error = ex.Message;
+            _error = ExtractErrorMessage(ex.Message);
         }
         finally
         {
@@ -481,7 +762,9 @@
     private async Task RunCompareAsync()
     {
         if (_selectedFile is null || _referenceFile is null)
+        {
             return;
+        }
 
         try
         {
@@ -504,10 +787,55 @@
             _report = null;
             _scanStart = null;
             _uploadResult = null;
+            _textReport = null;
         }
         catch (Exception ex)
         {
-            _error = ex.Message;
+            _error = ExtractErrorMessage(ex.Message);
+        }
+        finally
+        {
+            _busy = false;
+            _phase = UiPhase.None;
+        }
+    }
+
+    private async Task RunTextScanAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_manualText))
+        {
+            _error = "Introduceți textul care trebuie verificat.";
+            return;
+        }
+
+        if (GetManualTextWordCount() < 10)
+        {
+            _error = "Textul introdus este prea scurt pentru o analiză relevantă. Introduceți cel puțin 10 cuvinte.";
+            return;
+        }
+
+        try
+        {
+            _busy = true;
+            _error = null;
+            _phase = UiPhase.TextScan;
+
+            _textReport = await Api.ScanTextAsync(new TextScanRequestDto
+            {
+                Title = "Text introdus manual",
+                Text = _manualText
+            });
+
+            _report = null;
+            _compareReport = null;
+            _scanStart = null;
+            _uploadResult = null;
+            _primaryUploadResult = null;
+            _referenceUploadResult = null;
+        }
+        catch (Exception ex)
+        {
+            _error = ExtractErrorMessage(ex.Message);
         }
         finally
         {
@@ -540,6 +868,12 @@
 
     private async Task LoadReport()
     {
+        if (_textMode)
+        {
+            await RunTextScanAsync();
+            return;
+        }
+
         try
         {
             _busy = true;
@@ -549,7 +883,9 @@
             if (_compareMode)
             {
                 if (_primaryUploadResult is null || _referenceUploadResult is null)
+                {
                     return;
+                }
 
                 _compareReport = await Api.CompareTwoDocumentsAsync(
                     _primaryUploadResult.DocumentId,
@@ -558,14 +894,16 @@
             else
             {
                 if (_uploadResult is null)
+                {
                     return;
+                }
 
                 _report = await Api.GetInternalReportAsync(_uploadResult.DocumentId);
             }
         }
         catch (Exception ex)
         {
-            _error = ex.Message;
+            _error = ExtractErrorMessage(ex.Message);
         }
         finally
         {
@@ -576,10 +914,17 @@
 
     private void DownloadPdf()
     {
+        if (_textMode)
+        {
+            return;
+        }
+
         if (_compareMode)
         {
             if (_primaryUploadResult is null || _referenceUploadResult is null)
+            {
                 return;
+            }
 
             var url = $"https://localhost:7260/api/internal-scan/report/compare/{_primaryUploadResult.DocumentId}/{_referenceUploadResult.DocumentId}/pdf";
             Nav.NavigateTo(url, forceLoad: true);
@@ -587,7 +932,9 @@
         }
 
         if (_uploadResult is null)
+        {
             return;
+        }
 
         var singleUrl = $"https://localhost:7260/api/internal-scan/report/{_uploadResult.DocumentId}/pdf";
         Nav.NavigateTo(singleUrl, forceLoad: true);
@@ -595,24 +942,47 @@
 
     private bool CanStartScan()
     {
+        if (_textMode)
+        {
+            return !string.IsNullOrWhiteSpace(_manualText) && GetManualTextWordCount() >= 10;
+        }
+
         if (_compareMode)
+        {
             return _selectedFile is not null && _referenceFile is not null;
+        }
 
         return _selectedFile is not null;
     }
 
     private bool CanReloadReport()
     {
+        if (_textMode)
+        {
+            return !string.IsNullOrWhiteSpace(_manualText)
+                && GetManualTextWordCount() >= 10
+                && _textReport is not null;
+        }
+
         if (_compareMode)
+        {
             return _primaryUploadResult is not null && _referenceUploadResult is not null;
+        }
 
         return _uploadResult is not null;
     }
 
     private bool CanDownloadPdf()
     {
+        if (_textMode)
+        {
+            return false;
+        }
+
         if (_compareMode)
+        {
             return _primaryUploadResult is not null && _referenceUploadResult is not null && _compareReport is not null;
+        }
 
         return _uploadResult is not null && _report is not null;
     }
@@ -627,6 +997,7 @@
         _scanStart = null;
         _report = null;
         _compareReport = null;
+        _textReport = null;
         _error = null;
     }
 
@@ -638,6 +1009,7 @@
         _scanStart = null;
         _report = null;
         _compareReport = null;
+        _textReport = null;
     }
 
     private static int GetOverallPercent(InternalScanReportDto report)
@@ -645,10 +1017,14 @@
         var plagPercent = report.ExactPercent + report.ParaphrasePercent;
 
         if (plagPercent > 100)
+        {
             plagPercent = 100;
+        }
 
         if (plagPercent == 0 && report.Fragments is not null && report.Fragments.Count > 0)
+        {
             return 1;
+        }
 
         return plagPercent;
     }
@@ -657,7 +1033,7 @@
         => overall >= 70 ? "Nivel ridicat" : overall >= 30 ? "Nivel mediu" : "Nivel scăzut";
 
     private static string GetBadgeClass(int overall)
-        => overall >= 70 ? "sc-badge-danger" : overall >= 30 ? "sc-badge-warn" : "sc-badge-ok";
+        => overall >= 70 ? "scan-badge-danger" : overall >= 30 ? "scan-badge-warn" : "scan-badge-ok";
 
     private static string GetPhaseText(UiPhase phase)
         => phase switch
@@ -666,15 +1042,133 @@
             UiPhase.UploadReference => "Se încarcă documentul de referință în sistem...",
             UiPhase.Scan => "Se execută analiza de similitudine...",
             UiPhase.Report => "Se generează raportul...",
+            UiPhase.TextScan => "Se verifică textul introdus manual...",
             _ => "Se procesează..."
         };
 
     private static string FormatSize(long bytes)
     {
-        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024)
+        {
+            return $"{bytes} B";
+        }
+
         double kb = bytes / 1024.0;
-        if (kb < 1024) return $"{kb:0.##} KB";
+
+        if (kb < 1024)
+        {
+            return $"{kb:0.##} KB";
+        }
+
         double mb = kb / 1024.0;
         return $"{mb:0.##} MB";
+    }
+
+    private int GetManualTextCharacterCount()
+    {
+        return string.IsNullOrEmpty(_manualText) ? 0 : _manualText.Length;
+    }
+
+    private int GetManualTextWordCount()
+    {
+        if (string.IsNullOrWhiteSpace(_manualText))
+        {
+            return 0;
+        }
+
+        return System.Text.RegularExpressions.Regex.Matches(
+            _manualText.Trim(),
+            @"\S+").Count;
+    }
+
+    private void ClearManualText()
+    {
+        _manualText = string.Empty;
+        _textReport = null;
+        _error = null;
+    }
+
+    private void LoadSampleText()
+    {
+        _manualText =
+            "Procesarea limbajului natural reprezintă un domeniu al inteligenței artificiale care permite analiza, interpretarea și compararea textelor scrise. " +
+            "În cadrul aplicațiilor de verificare a similitudinii, textul este prelucrat prin normalizare, tokenizare și extragerea caracteristicilor relevante. " +
+            "Pe baza acestor operațiuni, sistemul poate identifica fragmente similare, parafrazări și corespondențe între documente.";
+
+        _textReport = null;
+        _error = null;
+    }
+
+    private string GetStartButtonText()
+    {
+        if (_textMode)
+        {
+            return "Verifică textul";
+        }
+
+        return "Începe scanarea";
+    }
+
+    private string GetInputSectionTitle()
+    {
+        if (_textMode)
+        {
+            return "Introducerea textului";
+        }
+
+        if (_compareMode)
+        {
+            return "Încărcarea documentelor";
+        }
+
+        return "Încărcarea documentului";
+    }
+
+    private string GetInputSectionSubtitle()
+    {
+        if (_textMode)
+        {
+            return "Introdu sau lipește textul care trebuie comparat cu documentele existente în baza de date.";
+        }
+
+        if (_compareMode)
+        {
+            return "Selectează documentul analizat și documentul de referință pentru comparație directă.";
+        }
+
+        return "Selectează fișierul care urmează să fie analizat în raport cu documentele existente.";
+    }
+
+    private static string ExtractErrorMessage(string? rawMessage)
+    {
+        if (string.IsNullOrWhiteSpace(rawMessage))
+        {
+            return "A apărut o eroare la procesarea documentului.";
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(rawMessage);
+
+            if (document.RootElement.TryGetProperty("errorMessage", out var errorMessage))
+            {
+                return errorMessage.GetString() ?? "A apărut o eroare la procesarea documentului.";
+            }
+
+            if (document.RootElement.TryGetProperty("message", out var message))
+            {
+                return message.GetString() ?? "A apărut o eroare la procesarea documentului.";
+            }
+
+            if (document.RootElement.TryGetProperty("error", out var error))
+            {
+                return error.GetString() ?? "A apărut o eroare la procesarea documentului.";
+            }
+        }
+        catch
+        {
+        }
+
+        return rawMessage;
     }
 }

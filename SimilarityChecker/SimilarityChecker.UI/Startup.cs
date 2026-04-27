@@ -36,6 +36,11 @@ namespace SimilarityChecker.UI
             services.AddScoped<CustomAuthStateProvider>();
             services.AddScoped<AuthenticationStateProvider>(sp =>
                 sp.GetRequiredService<CustomAuthStateProvider>());
+            services.AddServerSideBlazor()
+                .AddHubOptions(options =>
+                {
+                    options.MaximumReceiveMessageSize = 50 * 1024 * 1024; // 50 MB
+                });
 
             var apiBase = Configuration["ApiBaseUrl"] ?? "https://localhost:7260/";
 
