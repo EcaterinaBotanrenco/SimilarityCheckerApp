@@ -31,10 +31,8 @@ namespace SimilarityChecker.Api.Services
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
         {
-            // Normalize email for consistent comparisons and storage
             var email = (request.Email ?? string.Empty).Trim().ToLowerInvariant();
 
-            // Verificăm dacă email-ul nu este deja folosit (AsNoTracking since we only check existence)
             var existingUser = await _db.AppUsers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email == email);
@@ -46,13 +44,12 @@ namespace SimilarityChecker.Api.Services
                     ErrorMessage = "Există deja un cont cu acest email."
                 };
 
-            // Creăm un nou utilizator (store normalized email)
             var newUser = new AppUserEntity
             {
                 FirstName = request.FirstName?.Trim() ?? string.Empty,
                 LastName = request.LastName?.Trim() ?? string.Empty,
                 Email = email,
-                PasswordHash = PasswordHasher.Hash(request.Password),  // use same hasher as Login/Reset
+                PasswordHash = PasswordHasher.Hash(request.Password), 
                 RolesCsv = "User"
             };
             _db.AppUsers.Add(newUser);
@@ -63,7 +60,6 @@ namespace SimilarityChecker.Api.Services
             }
             catch (DbUpdateException ex)
             {
-                // Handle possible unique constraint race condition: return friendly error if it's a duplicate-email violation
                 if (IsUniqueConstraintViolation(ex))
                 {
                     return new AuthResponseDto
@@ -73,7 +69,6 @@ namespace SimilarityChecker.Api.Services
                     };
                 }
 
-                // rethrow unexpected DB errors
                 throw;
             }
 
@@ -102,7 +97,6 @@ namespace SimilarityChecker.Api.Services
 
             var user = await _db.AppUsers.FirstOrDefaultAsync(x => x.Email == email);
 
-            // Nu divulgăm dacă utilizatorul există sau nu
             if (user is null)
                 return;
 

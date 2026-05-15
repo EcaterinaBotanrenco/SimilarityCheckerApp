@@ -9,8 +9,6 @@ namespace SimilarityChecker.Shared.Dto
     public interface IPlagiarismService
     {
         Task<PlagiarismCheckResponse> CheckAsync(PlagiarismCheckRequest request);
-
-        // pentru PDF: obții din server datele pentru runId
         Task<PlagiarismResultDto?> GetResultAsync(Guid runId);
     }
 }

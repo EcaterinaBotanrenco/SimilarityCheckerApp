@@ -13,7 +13,7 @@
         <div class="scan-kicker">Scanare internă</div>
         <h1 class="scan-title">Verificarea similitudinii documentelor</h1>
         <p class="scan-subtitle">
-            Încarcă un document, introdu un text manual sau compară direct două documente între ele.
+            Încărcați un document, introduceți un text manual sau comparați direct două documente între ele.
             Rezultatul poate fi vizualizat în interfață, iar pentru documente poate fi descărcat sub formă de raport PDF.
         </p>
     </section>
@@ -171,7 +171,7 @@
             {
                 <div class="scan-text-area-card">
                     <textarea class="scan-textarea"
-                              placeholder="Introdu sau lipește textul care trebuie verificat..."
+                              placeholder="Introduceți sau lipiți textul care trebuie verificat..."
                               @bind="_manualText"
                               @bind:event="oninput"
                               disabled="@_busy">
@@ -214,9 +214,9 @@
             <div class="scan-card-header">
                 <div>
                     <div class="scan-step">Pasul 2</div>
-                    <h2 class="scan-card-title">Rulează analiza</h2>
+                    <h2 class="scan-card-title">Rularea analizei</h2>
                     <p class="scan-card-subtitle">
-                        După introducerea datelor, pornește verificarea și consultă rezultatul obținut.
+                        După introducerea datelor, porniți verificarea și consultați rezultatul obținut.
                     </p>
                 </div>
             </div>
@@ -765,7 +765,6 @@
         {
             return;
         }
-
         try
         {
             _busy = true;
@@ -1128,15 +1127,15 @@
     {
         if (_textMode)
         {
-            return "Introdu sau lipește textul care trebuie comparat cu documentele existente în baza de date.";
+            return "Introduceți sau lipiți textul care trebuie comparat cu documentele existente în baza de date.";
         }
 
         if (_compareMode)
         {
-            return "Selectează documentul analizat și documentul de referință pentru comparație directă.";
+            return "Selectați documentul analizat și documentul de referință pentru comparație directă.";
         }
 
-        return "Selectează fișierul care urmează să fie analizat în raport cu documentele existente.";
+        return "Selectați fișierul care urmează să fie analizat în raport cu documentele existente.";
     }
 
     private static string ExtractErrorMessage(string? rawMessage)

@@ -22,7 +22,6 @@
             int inter = a.Intersect(b).Count();
             int uni = a.Union(b).Count();
 
-            // 0..100
             var score = (int)Math.Round(100.0 * inter / uni);
             return Math.Clamp(score, 0, 100);
         }

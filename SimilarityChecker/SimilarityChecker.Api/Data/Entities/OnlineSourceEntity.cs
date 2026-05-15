@@ -24,6 +24,5 @@ public sealed class OnlineSourceEntity
 
     public string ExtractedText { get; set; } = string.Empty;
 
-    // Navigații
     public List<MatchEntity> Matches { get; set; } = new();
 }

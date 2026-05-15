@@ -61,7 +61,6 @@ namespace SimilarityChecker.Api.Controllers
                 }
                 catch
                 {
-                    // lăsăm valorile 0 dacă JSON-ul nu poate fi citit
                 }
 
                 return new UserReportItemDto

@@ -82,7 +82,6 @@ namespace SimilarityChecker.UI.Controllers
                         });
                     });
 
-                    // Use the string overload of Text so it returns a descriptor and you can chain FontSize(...)
                     page.Footer()
                         .AlignCenter()
                         .Text($"Generat automat • {DateTime.Now:dd.MM.yyyy HH:mm}")

@@ -124,7 +124,7 @@
                 ? "/"
                 : (_returnUrl.StartsWith("/") ? _returnUrl : "/" + _returnUrl);
 
-            Nav.NavigateTo(target, forceLoad: false);
+            Nav.NavigateTo("/internal-scan", forceLoad: true);
         }
         catch (Exception ex)
         {
@@ -164,7 +164,6 @@
         }
         catch
         {
-            // Dacă mesajul nu este JSON, îl afișăm ca text simplu.
         }
 
         return rawMessage;

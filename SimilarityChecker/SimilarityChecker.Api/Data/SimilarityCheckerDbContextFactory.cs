@@ -11,10 +11,8 @@ public sealed class SimilarityCheckerDbContextFactory
     {
         var current = Directory.GetCurrentDirectory();
 
-        // 1) încearcă în directorul curent
         var basePath = current;
 
-        // 2) dacă nu există appsettings.json aici, încearcă în subfolderul SimilarityChecker.Api
         if (!File.Exists(Path.Combine(basePath, "appsettings.json")))
         {
             var apiSubfolder = Path.Combine(current, "SimilarityChecker.Api");
@@ -22,7 +20,6 @@ public sealed class SimilarityCheckerDbContextFactory
                 basePath = apiSubfolder;
         }
 
-        // dacă tot nu găsim, aruncăm o eroare clară
         var appsettingsPath = Path.Combine(basePath, "appsettings.json");
         if (!File.Exists(appsettingsPath))
         {

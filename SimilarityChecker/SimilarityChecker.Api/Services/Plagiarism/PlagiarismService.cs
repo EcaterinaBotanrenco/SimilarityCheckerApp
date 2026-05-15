@@ -14,13 +14,11 @@ namespace SimilarityChecker.Api.Services.Plagiarism
 
         public async Task<PlagiarismCheckResponse> CheckAsync(PlagiarismCheckRequest request)
         {
-            // 1) extract text
             var mainTextRaw = await _extract.ExtractAsync(request.MainContent, request.MainFileName);
             var refTextRaw = request.ReferenceContent is null
                 ? null
                 : await _extract.ExtractAsync(request.ReferenceContent, request.ReferenceFileName ?? "reference");
 
-            // 2) normalize + tokenize
             var mainNorm = TextNormalizer.Normalize(mainTextRaw);
             var mainTokens = TextNormalizer.TokenizeWords(mainNorm);
 
@@ -31,7 +29,6 @@ namespace SimilarityChecker.Api.Services.Plagiarism
                 refTokens = TextNormalizer.TokenizeWords(refNorm);
             }
 
-            // 3) similarity (word shingles)
             var shingleSize = 5;
 
             var mainSh = ShinglingSimilarity.BuildWordShingles(mainTokens, shingleSize);
@@ -41,7 +38,6 @@ namespace SimilarityChecker.Api.Services.Plagiarism
 
             var overall = (refTokens is null) ? 0 : ShinglingSimilarity.JaccardPercent(mainSh, refSh);
 
-            // 4) build matches list (minim util acum)
             var matches = new List<PlagiarismMatchDto>();
 
             if (refTokens is not null)
@@ -63,7 +59,6 @@ namespace SimilarityChecker.Api.Services.Plagiarism
                 });
             }
 
-            // 5) finalize
             var result = new PlagiarismResultDto
             {
                 Threshold = 25,

@@ -5,7 +5,6 @@ namespace SimilarityChecker.Api.Services
 {
     public static class PasswordHasher
     {
-        // PBKDF2: format = {iterations}.{saltBase64}.{hashBase64}
         public static string Hash(string password, int iterations = 100_000)
         {
             var salt = RandomNumberGenerator.GetBytes(16);

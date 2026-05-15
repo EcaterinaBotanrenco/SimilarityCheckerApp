@@ -101,7 +101,6 @@ namespace SimilarityChecker.Api.Controllers
                 if (!result.Success)
                     return BadRequest(result);
 
-                // FIX: return the full AuthResponseDto (token + user) instead of only a message
                 return Ok(result);
             }
             catch (Exception ex)

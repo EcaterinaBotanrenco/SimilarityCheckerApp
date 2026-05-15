@@ -746,27 +746,4 @@ public static class InternalSimilarityEngine
         if (endExclusive <= start) return string.Empty;
         return string.Join(' ', tokens, start, endExclusive - start);
     }
-
-    public sealed class ExactMatchFragment
-    {
-        public int SourceTokenStart { get; set; }
-        public int SourceTokenEnd { get; set; }
-        public int RefTokenStart { get; set; }
-        public int RefTokenEnd { get; set; }
-        public double Score { get; set; }
-        public string SourceSnippet { get; set; } = "";
-        public string ReferenceSnippet { get; set; } = "";
-    }
-
-    public sealed class ParaphraseMatchFragment
-    {
-        public int SourceTokenStart { get; set; }
-        public int SourceTokenEnd { get; set; }
-        public int RefTokenStart { get; set; }
-        public int RefTokenEnd { get; set; }
-        public int SharedContentWords { get; set; }
-        public double Score { get; set; }
-        public string SourceSnippet { get; set; } = "";
-        public string ReferenceSnippet { get; set; } = "";
-    }
 }

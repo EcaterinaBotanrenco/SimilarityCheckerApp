@@ -7,3 +7,5 @@ public sealed class DocumentUploadResponse
     public int WordCount { get; set; }
     public string Sha256 { get; set; } = string.Empty;
 }
+
+

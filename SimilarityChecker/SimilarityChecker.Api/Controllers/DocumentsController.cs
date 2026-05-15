@@ -266,7 +266,6 @@ public sealed class DocumentsController : ControllerBase
         if (string.IsNullOrWhiteSpace(text))
             return string.Empty;
 
-        // O variantă infinit mai rapidă care evită blocajele Regex alocând memorie o singură dată
         var sb = new System.Text.StringBuilder(text.Length);
         bool previousWasWhitespace = false;
 
@@ -298,7 +297,6 @@ public sealed class DocumentsController : ControllerBase
         int wordCount = 0;
         bool inWord = false;
 
-        // Parcurgem lista de caractere direct (0 alocări de memorie, viteză instantanee)
         for (int i = 0; i < text.Length; i++)
         {
             if (char.IsWhiteSpace(text[i]))

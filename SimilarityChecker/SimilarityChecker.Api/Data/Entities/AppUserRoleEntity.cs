@@ -10,7 +10,6 @@ namespace SimilarityChecker.Api.Data.Entities
         public Guid RoleId { get; set; }
         public RoleEntity Role { get; set; }
 
-        // Definim cheia primară compusă
-        public Guid Id => UserId; // sau poți lăsa gol pentru a fi generat automat de EF
+        public Guid Id => UserId; 
     }
 }
